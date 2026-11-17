@@ -13,121 +13,115 @@
     --hint: var(--tg-theme-hint-color, #8b92b8);
     --accent: var(--tg-theme-button-color, #6c5ce7);
     --accent-text: var(--tg-theme-button-text-color, #ffffff);
-    --good: #2ecc71;
-    --bad: #ff5e6c;
-    --warn: #ffc048;
+    --good: #2ecc71; --bad: #ff5e6c; --warn: #ffc048; --gold: #f5c542;
     --radius: 16px;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; height: 100%; }
-  body {
-    background: var(--bg); color: var(--text);
-    font-family: -apple-system, "Segoe UI", Roboto, system-ui, sans-serif;
-    overscroll-behavior: none; user-select: none; -webkit-user-select: none;
-  }
-  .screen { display: none; min-height: 100vh; padding: 16px; max-width: 520px; margin: 0 auto; }
+  html, body { margin: 0; min-height: 100%; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, "Segoe UI", Roboto, system-ui, sans-serif; overscroll-behavior: none; user-select: none; -webkit-user-select: none; }
+  .screen { display: none; min-height: 100vh; padding: 14px 16px 24px; max-width: 540px; margin: 0 auto; }
   .screen.on { display: block; }
-  h1 { font-size: 22px; margin: 4px 0 2px; }
-  .sub { color: var(--hint); font-size: 14px; margin-bottom: 18px; }
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .game-card {
-    background: var(--card); border-radius: var(--radius); padding: 16px 14px; cursor: pointer;
-    border: 1px solid rgba(127,127,127,.15); transition: transform .12s;
-  }
-  .game-card:active { transform: scale(.96); }
-  .game-card .ico { font-size: 34px; }
-  .game-card .nm { font-weight: 700; margin-top: 8px; font-size: 16px; }
-  .game-card .ds { color: var(--hint); font-size: 12.5px; margin-top: 4px; line-height: 1.35; }
-  .best { font-size: 12px; color: var(--warn); margin-top: 6px; min-height: 15px; }
-
+  h1 { font-size: 22px; margin: 2px 0; }
+  .sub { color: var(--hint); font-size: 14px; margin-bottom: 12px; }
+  .head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 12px; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tabs button { flex: none; border: 0; background: var(--card); color: var(--text); padding: 8px 14px; border-radius: 99px; font-weight: 700; font-size: 14px; }
+  .tabs button.on { background: var(--accent); color: var(--accent-text); }
+  .search { width: 100%; padding: 11px 14px; border-radius: 12px; border: 0; background: var(--card); color: var(--text); font-size: 15px; margin-bottom: 10px; outline: none; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .gc { background: var(--card); border-radius: 14px; padding: 12px 6px 10px; text-align: center; cursor: pointer; border: 1px solid rgba(127,127,127,.12); transition: transform .12s; position: relative; }
+  .gc:active { transform: scale(.94); }
+  .gc .ico { font-size: 32px; line-height: 1.1; }
+  .gc .nm { font-weight: 700; font-size: 12.5px; margin-top: 6px; line-height: 1.2; }
+  .gc .bs { font-size: 10.5px; color: var(--warn); margin-top: 3px; min-height: 12px; }
+  .gc .tag { position: absolute; top: 6px; right: 6px; font-size: 9px; font-weight: 800; background: var(--bad); color: #fff; padding: 1px 5px; border-radius: 6px; }
   .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 8px; }
-  .topbar .t { font-weight: 700; font-size: 17px; }
+  .topbar .t { font-weight: 700; font-size: 16px; text-align: center; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pill { background: var(--card); padding: 6px 12px; border-radius: 99px; font-weight: 700; font-size: 14px; white-space: nowrap; }
-  .btn {
-    background: var(--accent); color: var(--accent-text); border: 0; border-radius: 12px;
-    padding: 12px 16px; font-size: 16px; font-weight: 700; cursor: pointer; width: 100%;
-  }
+  .pill.gold { color: var(--gold); }
+  .btn { background: var(--accent); color: var(--accent-text); border: 0; border-radius: 12px; padding: 12px 16px; font-size: 16px; font-weight: 700; cursor: pointer; width: 100%; }
   .btn.ghost { background: var(--card); color: var(--text); }
-  .btn:active { opacity: .8; }
+  .btn.good { background: var(--good); color: #fff; } .btn.bad { background: var(--bad); color: #fff; }
+  .btn:active { opacity: .8; } .btn:disabled { opacity: .45; }
   .back { background: var(--card); color: var(--text); border: 0; border-radius: 10px; padding: 8px 12px; font-size: 15px; cursor: pointer; }
   canvas { display: block; margin: 0 auto; background: var(--card); border-radius: 12px; touch-action: none; }
   .center { text-align: center; }
   .row { display: flex; gap: 10px; margin-top: 12px; }
-
-  /* D-pad */
-  .dpad { display: grid; grid-template-columns: repeat(3, 64px); grid-template-rows: repeat(2, 54px); gap: 8px; justify-content: center; margin-top: 14px; }
+  .row > * { flex: 1; }
+  .msg { text-align: center; min-height: 26px; font-weight: 700; font-size: 17px; margin: 8px 0; }
+  .big { font-size: 40px; font-weight: 800; text-align: center; margin: 18px 0; }
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .opts button, .cell { border: 0; border-radius: 14px; background: var(--card); color: var(--text); font-weight: 700; font-size: 18px; padding: 16px 8px; cursor: pointer; }
+  .opts button.ok { background: var(--good); color: #fff; } .opts button.no { background: var(--bad); color: #fff; }
+  .bar { height: 8px; background: var(--card); border-radius: 9px; overflow: hidden; margin-bottom: 6px; }
+  .bar > i { display: block; height: 100%; background: var(--accent); width: 100%; transition: width .1s linear; }
+  .board { display: grid; gap: 6px; margin: 8px auto; }
+  .board .cell { padding: 0; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  .dpad { display: grid; grid-template-columns: repeat(3, 64px); grid-template-rows: repeat(2, 52px); gap: 8px; justify-content: center; margin-top: 12px; }
   .dpad button { background: var(--card); color: var(--text); border: 0; border-radius: 12px; font-size: 22px; }
   .dpad button:active { background: var(--accent); }
-
-  /* X-O */
-  .xo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 330px; margin: 10px auto; }
-  .xo button { aspect-ratio: 1; font-size: 46px; font-weight: 800; background: var(--card); color: var(--text); border: 0; border-radius: 14px; }
-  .xo button.x { color: #4fc3ff; } .xo button.o { color: var(--bad); }
-  .xo button.win { background: rgba(46,204,113,.25); }
   .seg { display: flex; background: var(--card); border-radius: 12px; padding: 4px; margin-bottom: 8px; }
   .seg button { flex: 1; border: 0; background: transparent; color: var(--hint); padding: 9px; border-radius: 9px; font-weight: 700; font-size: 14px; }
   .seg button.on { background: var(--accent); color: var(--accent-text); }
-  .msg { text-align: center; min-height: 26px; font-weight: 700; font-size: 17px; margin: 8px 0; }
-
-  /* Xotira */
+  input.ans { width: 100%; padding: 14px; font-size: 22px; text-align: center; border-radius: 12px; border: 2px solid var(--accent); background: var(--card); color: var(--text); outline: none; }
+  /* Xotira kartalari */
   .mem { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; max-width: 380px; margin: 0 auto; perspective: 600px; }
   .mc { aspect-ratio: 1; position: relative; transform-style: preserve-3d; transition: transform .35s; cursor: pointer; }
   .mc.open, .mc.done { transform: rotateY(180deg); }
   .mc > div { position: absolute; inset: 0; border-radius: 12px; display: flex; align-items: center; justify-content: center; backface-visibility: hidden; }
   .mc .f { background: linear-gradient(135deg, var(--accent), #a29bfe); font-size: 22px; color: #fff; }
-  .mc .b { background: var(--card); transform: rotateY(180deg); font-size: 34px; }
+  .mc .b { background: var(--card); transform: rotateY(180deg); font-size: 32px; }
   .mc.done .b { background: rgba(46,204,113,.22); }
-
-  /* Reaksiya */
-  .rx { height: 56vh; min-height: 300px; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 26px; font-weight: 800; text-align: center; padding: 20px; cursor: pointer; transition: background .1s; }
-  .rx small { font-size: 15px; font-weight: 500; opacity: .85; margin-top: 8px; }
-  .rx.idle { background: var(--card); } .rx.wait { background: #c0392b; color: #fff; } .rx.go { background: var(--good); color: #fff; } .rx.early { background: var(--warn); color: #222; }
-
-  /* Matematika */
-  .q { font-size: 44px; font-weight: 800; text-align: center; margin: 26px 0; }
-  .ans { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .ans button { padding: 20px; font-size: 26px; font-weight: 800; border-radius: 14px; border: 0; background: var(--card); color: var(--text); }
-  .ans button.ok { background: var(--good); color: #fff; } .ans button.no { background: var(--bad); color: #fff; }
-  .bar { height: 8px; background: var(--card); border-radius: 9px; overflow: hidden; }
-  .bar > i { display: block; height: 100%; background: var(--accent); width: 100%; transition: width .2s linear; }
-
+  /* Kazino */
+  .bet { background: var(--card); border-radius: 14px; padding: 10px; margin-top: 12px; }
+  .bet .line { display: flex; align-items: center; gap: 8px; }
+  .bet .line button { border: 0; background: var(--bg); color: var(--text); border-radius: 10px; padding: 9px 12px; font-weight: 800; font-size: 15px; }
+  .bet .val { flex: 1; text-align: center; font-size: 20px; font-weight: 800; color: var(--gold); }
+  .bet .quick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+  .bet .quick button { border: 0; background: var(--bg); color: var(--text); border-radius: 9px; padding: 7px 0; font-weight: 700; font-size: 13px; }
+  .pcard { display: inline-flex; width: 52px; height: 74px; border-radius: 8px; background: #fff; color: #222; font-weight: 800; font-size: 18px; align-items: center; justify-content: center; margin: 3px; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
+  .pcard.red { color: #d63031; } .pcard.back { background: linear-gradient(135deg, #6c5ce7, #e84393); color: transparent; }
+  .reels { display: flex; justify-content: center; gap: 8px; margin: 16px 0; }
+  .reel { width: 76px; height: 86px; background: var(--card); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 46px; border: 2px solid rgba(245,197,66,.4); }
   /* Natija oynasi */
   .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 10; }
   .overlay.on { display: flex; }
-  .modal { background: var(--bg); border-radius: 22px; padding: 24px 20px; width: 100%; max-width: 360px; text-align: center; border: 1px solid rgba(127,127,127,.2); animation: pop .25s ease-out; }
+  .modal { background: var(--bg); border-radius: 22px; padding: 22px 18px; width: 100%; max-width: 360px; text-align: center; border: 1px solid rgba(127,127,127,.2); animation: pop .25s ease-out; }
   @keyframes pop { from { transform: scale(.85); opacity: 0; } }
-  .modal .big { font-size: 54px; }
+  .modal .bigi { font-size: 52px; }
   .modal h2 { margin: 6px 0; }
   .modal .coins { font-size: 22px; font-weight: 800; color: var(--warn); margin: 10px 0 4px; }
-  .modal .note { color: var(--hint); font-size: 13px; margin-bottom: 16px; }
+  .modal .note { color: var(--hint); font-size: 13px; margin-bottom: 14px; }
   .modal .btn + .btn { margin-top: 10px; }
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #222a; color: #fff; backdrop-filter: blur(6px); padding: 10px 16px; border-radius: 12px; font-size: 14px; display: none; z-index: 20; max-width: 90vw; text-align: center; }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: rgba(20,20,30,.9); color: #fff; padding: 10px 16px; border-radius: 12px; font-size: 14px; display: none; z-index: 20; max-width: 90vw; text-align: center; }
 </style>
 </head>
 <body>
 
-<!-- ============ BOSH SAHIFA ============ -->
 <section class="screen on" id="home">
-  <h1>🕹 O'yin markazi</h1>
-  <div class="sub" id="hello">O'yinni tanlang va tanga yuting!</div>
+  <div class="head">
+    <div><h1>🎮 O'yin markazi</h1><div class="sub" id="hello"></div></div>
+    <div class="pill gold" id="chipsTop" title="Kazino fishkalari"></div>
+  </div>
+  <input class="search" id="search" placeholder="🔍 O'yin qidirish...">
+  <div class="tabs" id="tabs"></div>
   <div class="grid" id="cards"></div>
 </section>
 
-<!-- ============ O'YIN EKRANI ============ -->
 <section class="screen" id="play">
   <div class="topbar">
-    <button class="back" id="backBtn">← Orqaga</button>
+    <button class="back" id="backBtn">←</button>
     <div class="t" id="gTitle"></div>
-    <div class="pill" id="gScore">0</div>
+    <div class="pill" id="gScore"></div>
   </div>
   <div id="stage"></div>
 </section>
 
-<!-- ============ NATIJA ============ -->
 <div class="overlay" id="result">
   <div class="modal">
-    <div class="big" id="rIcon">🏆</div>
-    <h2 id="rTitle">O'yin tugadi</h2>
+    <div class="bigi" id="rIcon">🏆</div>
+    <h2 id="rTitle"></h2>
     <div id="rText"></div>
     <div class="coins" id="rCoins"></div>
     <div class="note" id="rNote">Tangalar bot hisobingizga qo'shiladi</div>
@@ -140,73 +134,80 @@
 
 <script>
 "use strict";
+/* =====================================================================
+   YADRO: Telegram, yordamchilar, o'yinlar ro'yxati, natija oynasi
+   ===================================================================== */
 const tg = window.Telegram && window.Telegram.WebApp;
-const BOT = new URLSearchParams(location.search).get("bot") || "qiziqdim_bot";
 if (tg) { tg.ready(); tg.expand(); }
+const BOT = new URLSearchParams(location.search).get("bot") || "qiziqdim_bot";
 const $ = (id) => document.getElementById(id);
-const haptic = (t) => { try { tg && tg.HapticFeedback && (t === "ok" || t === "bad" ? tg.HapticFeedback.notificationOccurred(t === "ok" ? "success" : "error") : tg.HapticFeedback.impactOccurred(t || "light")); } catch (e) {} };
-
-function toast(text, ms = 2200) {
-  const t = $("toast"); t.textContent = text; t.style.display = "block";
-  clearTimeout(toast._h); toast._h = setTimeout(() => (t.style.display = "none"), ms);
-}
+const haptic = (t) => { try { if (!tg || !tg.HapticFeedback) return; if (t === "ok") tg.HapticFeedback.notificationOccurred("success"); else if (t === "bad") tg.HapticFeedback.notificationOccurred("error"); else tg.HapticFeedback.impactOccurred(t || "light"); } catch (e) {} };
+function toast(text, ms = 2200) { const t = $("toast"); t.textContent = text; t.style.display = "block"; clearTimeout(toast._h); toast._h = setTimeout(() => (t.style.display = "none"), ms); }
 function store(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } }
+const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const shuffle = (arr) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
-const user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
-if (user) $("hello").textContent = `Salom, ${user.first_name}! O'yinni tanlang va tanga yuting 🪙`;
+const G = {
+  list: [],
+  add(g) { this.list.push(Object.assign({ cat: "arcade", max: 150, ds: "" }, g)); },
+};
+const CATS = [["all", "🔥 Hammasi"], ["arcade", "🕹 Arkada"], ["puzzle", "🧩 Boshqotirma"], ["brain", "🧠 Aql"], ["speed", "⚡ Tezlik"], ["casino", "🎰 Kazino"]];
 
-/* ---------- Mukofot qoidalari (bot.py dagi bilan bir xil) ---------- */
-const REWARD = {
-  snake: (r) => Math.min(300, r.s * 5),
-  xo: (r) => (r.s === 2 ? (r.d === "hard" ? 80 : 30) : r.s === 1 ? 10 : 0),
-  memory: (r) => Math.max(30, Math.min(150, 150 - (r.m - 8) * 5)),
-  reaction: (r) => (r.s < 230 ? 100 : r.s < 280 ? 70 : r.s < 350 ? 45 : 20),
-  math: (r) => Math.min(300, r.s * 8),
-  dodge: (r) => Math.min(300, Math.floor(r.s / 3)),
+/* ---------- Kazino fishkalari (faqat o'yin uchun, tangaga almashtirilmaydi) ---------- */
+const Chips = {
+  get() { let v = store("chips"); if (typeof v !== "number") { v = 1000; store("chips", v); } return v; },
+  set(v) { store("chips", Math.max(0, Math.floor(v))); this.paint(); },
+  add(n) { this.set(this.get() + n); },
+  take(n) { if (n <= 0 || n > this.get()) { toast("🎰 Fishka yetarli emas!"); haptic("bad"); return false; } this.add(-n); return true; },
+  paint() { const v = this.get().toLocaleString("ru-RU"); $("chipsTop").textContent = `🎰 ${v}`; if (current && GMAP[current].cat === "casino") setScore(`🎰 ${v}`); },
 };
 
-/* ---------- O'yinlar ro'yxati ---------- */
-const GAMES = [
-  { id: "snake", ico: "🐍", nm: "Ilon", ds: "Olmalarni ye, o'zingga urilma", best: "Rekord" },
-  { id: "dodge", ico: "🚀", nm: "Kosmik qochish", ds: "Asteroidlardan qoch, yulduz yig'", best: "Rekord" },
-  { id: "math", ico: "➕", nm: "Matematika poygasi", ds: "30 soniyada eng ko'p misol", best: "Rekord" },
-  { id: "memory", ico: "🧠", nm: "Xotira", ds: "Juft kartalarni top", best: "Eng kam yurish" },
-  { id: "reaction", ico: "⚡", nm: "Reaksiya", ds: "Yashil bo'lganda tez bos!", best: "Eng tez" },
-  { id: "xo", ico: "❌", nm: "X-O", ds: "Botni yeng (oson / qiyin)", best: "G'alabalar" },
-];
-
+/* ---------- Bosh sahifa ---------- */
+let cat = store("cat") || "all", query = "";
+const user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
 function renderHome() {
-  $("cards").innerHTML = GAMES.map((g) => {
+  $("hello").textContent = `${user ? user.first_name + ", " : ""}${G.list.length} ta o'yin sizni kutmoqda!`;
+  $("tabs").innerHTML = CATS.map(([k, n]) => `<button data-c="${k}" class="${k === cat ? "on" : ""}">${n}</button>`).join("");
+  $("tabs").querySelectorAll("button").forEach((b) => (b.onclick = () => { cat = b.dataset.c; store("cat", cat); renderHome(); }));
+  const q = query.trim().toLowerCase();
+  const list = G.list.filter((g) => (cat === "all" || g.cat === cat) && (!q || g.nm.toLowerCase().includes(q)));
+  $("cards").innerHTML = list.map((g) => {
     const b = store("best_" + g.id);
-    const bt = b == null ? "" : `🏅 ${g.best}: ${b}${g.id === "reaction" ? " ms" : ""}`;
-    return `<div class="game-card" data-g="${g.id}"><div class="ico">${g.ico}</div><div class="nm">${g.nm}</div><div class="ds">${g.ds}</div><div class="best">${bt}</div></div>`;
-  }).join("");
-  document.querySelectorAll(".game-card").forEach((c) => (c.onclick = () => openGame(c.dataset.g)));
+    return `<div class="gc" data-g="${g.id}">${g.tag ? `<span class="tag">${g.tag}</span>` : ""}<div class="ico">${g.ico}</div><div class="nm">${g.nm}</div><div class="bs">${b != null ? "🏅 " + b + (g.unit || "") : ""}</div></div>`;
+  }).join("") || `<div class="sub">Hech narsa topilmadi</div>`;
+  $("cards").querySelectorAll(".gc").forEach((c) => (c.onclick = () => openGame(c.dataset.g)));
+  Chips.paint();
 }
-function saveBest(id, val, lowerIsBetter) {
+$("search").oninput = (e) => { query = e.target.value; renderHome(); };
+
+/* ---------- O'yin ekrani ---------- */
+let current = null, cleanup = null, lastResult = null, GMAP = {};
+function setScore(t) { $("gScore").textContent = t; }
+function saveBest(id, val, lower) {
   const b = store("best_" + id);
-  if (b == null || (lowerIsBetter ? val < b : val > b)) { store("best_" + id, val); return true; }
+  if (b == null || (lower ? val < b : val > b)) { store("best_" + id, val); return true; }
   return false;
 }
-
-/* ---------- Ekranlar ---------- */
-let current = null, cleanup = null, lastResult = null;
-function setScore(t) { $("gScore").textContent = t; }
-
 function openGame(id) {
-  stopGame();
+  stopGame(); hideResult();
   current = id;
-  const g = GAMES.find((x) => x.id === id);
+  const g = GMAP[id];
   $("gTitle").textContent = `${g.ico} ${g.nm}`;
   setScore("");
   $("home").classList.remove("on"); $("play").classList.add("on");
-  $("stage").innerHTML = "";
+  const stage = $("stage"); stage.innerHTML = "";
+  if (g.ds) { const d = document.createElement("div"); d.className = "sub center"; d.textContent = g.ds; stage.appendChild(d); }
   if (tg && tg.BackButton) tg.BackButton.show();
-  cleanup = STARTERS[id]($("stage")) || null;
+  window.scrollTo(0, 0);
+  if (g.cat === "casino") Chips.paint();
+  try { cleanup = g.start(stage, makeApi(g, stage)) || null; } catch (e) { console.error(e); toast("Xatolik: " + e.message); }
 }
 function stopGame() { if (cleanup) { try { cleanup(); } catch (e) {} } cleanup = null; }
 function goHome() {
-  stopGame(); hideResult();
+  stopGame(); hideResult(); current = null;
   $("play").classList.remove("on"); $("home").classList.add("on");
   if (tg && tg.BackButton) tg.BackButton.hide();
   renderHome();
@@ -214,17 +215,74 @@ function goHome() {
 $("backBtn").onclick = goHome;
 if (tg && tg.BackButton) tg.BackButton.onClick(goHome);
 
-/* ---------- Natija ---------- */
-function showResult({ icon, title, text, result }) {
-  lastResult = result;
-  const c = result ? REWARD[result.g](result) : 0;
-  $("rIcon").textContent = icon; $("rTitle").textContent = title; $("rText").innerHTML = text;
-  $("rCoins").textContent = c > 0 ? `+${c} 🪙` : "";
-  $("rClaim").style.display = c > 0 ? "block" : "none";
-  $("rNote").style.display = c > 0 ? "block" : "none";
-  $("result").classList.add("on");
-  haptic(c > 0 ? "ok" : "bad");
+/* ---------- O'yinlar uchun API ---------- */
+function makeApi(g, stage) {
+  const api = {
+    score: setScore, haptic, toast, rnd, pick, shuffle, sleep, clamp,
+    width: () => Math.min(stage.clientWidth || 360, 480),
+    best: (val, lower) => saveBest(g.id, val, lower),
+    el(html, cls = "") { const d = document.createElement("div"); if (cls) d.className = cls; d.innerHTML = html; stage.appendChild(d); return d; },
+    canvas(w, h) {
+      const c = document.createElement("canvas"); const dpr = window.devicePixelRatio || 1;
+      c.width = w * dpr; c.height = h * dpr; c.style.width = w + "px"; c.style.height = h + "px";
+      const ctx = c.getContext("2d"); ctx.scale(dpr, dpr); stage.appendChild(c); return { c, ctx };
+    },
+    /* requestAnimationFrame sikli: fn(dt) false qaytarsa to'xtaydi */
+    loop(fn) {
+      let raf = 0, last = performance.now(), alive = true;
+      const f = (now) => { if (!alive) return; const dt = Math.min(0.05, (now - last) / 1000); last = now; if (fn(dt) === false) { alive = false; return; } raf = requestAnimationFrame(f); };
+      raf = requestAnimationFrame(f);
+      return () => { alive = false; cancelAnimationFrame(raf); };
+    },
+    /* Kanvas ustida barmoq / sichqoncha koordinatalari */
+    pointer(c, cb) {
+      const h = (e) => { const r = c.getBoundingClientRect(); cb(e.clientX - r.left, e.clientY - r.top, e.type); };
+      c.addEventListener("pointerdown", h); c.addEventListener("pointermove", (e) => (e.buttons || e.pointerType === "touch") && h(e));
+    },
+    keys(map) { const k = (e) => { if (map[e.key]) { e.preventDefault(); map[e.key](); } }; document.addEventListener("keydown", k); return () => document.removeEventListener("keydown", k); },
+    /* O'yin tugashi: coins — botga beriladigan tanga (g.max bilan cheklanadi) */
+    end({ icon = "🏆", title = "O'yin tugadi", text = "", coins = 0 }) {
+      if (current !== g.id) return;
+      const c = clamp(Math.round(coins || 0), 0, g.max);
+      lastResult = c > 0 ? { g: g.id, c } : null;
+      $("rIcon").textContent = icon; $("rTitle").textContent = title; $("rText").innerHTML = text;
+      $("rCoins").textContent = c > 0 ? `+${c} 🪙` : "";
+      $("rClaim").style.display = $("rNote").style.display = c > 0 ? "block" : "none";
+      $("result").classList.add("on");
+      haptic(c > 0 ? "ok" : "bad");
+    },
+    /* Kazino: tikish paneli */
+    bet(parent, onChange) {
+      let v = clamp(store("bet") || 50, 10, 1e9);
+      const d = document.createElement("div"); d.className = "bet";
+      d.innerHTML = `<div class="line"><button data-a="-">−</button><div class="val"></div><button data-a="+">+</button></div>
+        <div class="quick"><button data-q="10">10</button><button data-q="half">½</button><button data-q="x2">×2</button><button data-q="max">MAX</button></div>
+        <div class="row" style="margin-top:8px"><button class="btn ghost" data-a="free" style="display:none;padding:9px;font-size:14px">🎁 Bepul 1000 fishka</button></div>`;
+      (parent || stage).appendChild(d);
+      const paint = () => {
+        v = clamp(Math.floor(v), 10, Math.max(10, Chips.get())); store("bet", v);
+        d.querySelector(".val").textContent = `🎰 ${v}`;
+        const ts = store("chips_ts") || 0;
+        d.querySelector('[data-a="free"]').style.display = Chips.get() < 10 && Date.now() - ts > 600000 ? "block" : "none";
+        onChange && onChange(v);
+      };
+      const step = () => (v < 100 ? 10 : v < 1000 ? 50 : 500);
+      d.querySelectorAll("button").forEach((b) => (b.onclick = () => {
+        haptic("light");
+        const a = b.dataset.a, q = b.dataset.q;
+        if (a === "+") v += step(); else if (a === "-") v -= step();
+        else if (a === "free") { store("chips_ts", Date.now()); Chips.add(1000); toast("🎁 +1000 fishka!"); }
+        else if (q === "half") v = v / 2; else if (q === "x2") v *= 2; else if (q === "max") v = Chips.get(); else if (q) v = +q;
+        paint();
+      }));
+      paint();
+      return { get: () => v, paint };
+    },
+  };
+  return api;
 }
+
+/* ---------- Natija oynasi ---------- */
 function hideResult() { $("result").classList.remove("on"); }
 $("rAgain").onclick = () => { hideResult(); openGame(current); };
 $("rHome").onclick = goHome;
@@ -235,327 +293,18 @@ $("rClaim").onclick = () => {
   if (!(tg.initDataUnsafe && tg.initDataUnsafe.query_id)) {
     try { tg.sendData(JSON.stringify(lastResult)); return; } catch (e) {}
   }
-  // "Open" / menyu tugmasi orqali ochilgan bo'lsa — natija botga /start havolasi orqali yuboriladi
-  const r = lastResult;
-  const code = [r.g, r.s ?? r.m, r.d ?? r.t ?? ""].filter((x) => x !== "").join("-");
-  tg.openTelegramLink(`https://t.me/${BOT}?start=g-${code}`);
+  // "Open" / menyu tugmasi orqali — natija /start havolasi orqali botga boradi
+  tg.openTelegramLink(`https://t.me/${BOT}?start=g-${lastResult.g}-${lastResult.c}`);
   setTimeout(() => tg.close(), 300);
 };
-
-/* ---------- Kanvas yordamchisi ---------- */
-function makeCanvas(stage, w, h) {
-  const c = document.createElement("canvas");
-  const dpr = window.devicePixelRatio || 1;
-  c.width = w * dpr; c.height = h * dpr; c.style.width = w + "px"; c.style.height = h + "px";
-  const ctx = c.getContext("2d"); ctx.scale(dpr, dpr);
-  stage.appendChild(c);
-  return { c, ctx };
-}
-function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
-function stageWidth(stage) { return Math.min(stage.clientWidth || 360, 460); }
-
-/* =====================================================================
-   1) ILON
-   ===================================================================== */
-function startSnake(stage) {
-  const N = 18, size = Math.floor(stageWidth(stage) / N) * N, cell = size / N;
-  const { c, ctx } = makeCanvas(stage, size, size);
-  const pad = document.createElement("div"); pad.className = "dpad";
-  pad.innerHTML = `<span></span><button data-d="0,-1">▲</button><span></span><button data-d="-1,0">◀</button><button data-d="0,1">▼</button><button data-d="1,0">▶</button>`;
-  stage.appendChild(pad);
-
-  let snake = [{ x: 8, y: 9 }, { x: 7, y: 9 }, { x: 6, y: 9 }], dir = { x: 1, y: 0 }, queue = [];
-  let food = null, score = 0, speed = 150, timer = null, dead = false;
-  const placeFood = () => {
-    do { food = { x: (Math.random() * N) | 0, y: (Math.random() * N) | 0 }; }
-    while (snake.some((s) => s.x === food.x && s.y === food.y));
-  };
-  const turn = (x, y) => {
-    const last = queue.length ? queue[queue.length - 1] : dir;
-    if (last.x === -x && last.y === -y) return;
-    if (last.x === x && last.y === y) return;
-    if (queue.length < 3) queue.push({ x, y });
-  };
-  const draw = () => {
-    ctx.clearRect(0, 0, size, size);
-    ctx.fillStyle = "rgba(127,127,127,.07)";
-    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) if ((i + j) % 2) ctx.fillRect(i * cell, j * cell, cell, cell);
-    ctx.font = `${cell * 0.9}px serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.fillText("🍎", food.x * cell + cell / 2, food.y * cell + cell / 2 + 1);
-    snake.forEach((s, i) => {
-      ctx.fillStyle = i === 0 ? "#2ecc71" : `hsl(145, 60%, ${45 - Math.min(i, 20)}%)`;
-      const p = i === 0 ? 1 : 2;
-      ctx.beginPath(); ctx.roundRect(s.x * cell + p, s.y * cell + p, cell - p * 2, cell - p * 2, cell * 0.3); ctx.fill();
-    });
-    const h = snake[0]; ctx.fillStyle = "#111";
-    ctx.beginPath(); ctx.arc(h.x * cell + cell / 2 + dir.x * cell * 0.18 - dir.y * cell * 0.18, h.y * cell + cell / 2 + dir.y * cell * 0.18 - dir.x * cell * 0.18, cell * 0.09, 0, 7); ctx.fill();
-    ctx.beginPath(); ctx.arc(h.x * cell + cell / 2 + dir.x * cell * 0.18 + dir.y * cell * 0.18, h.y * cell + cell / 2 + dir.y * cell * 0.18 + dir.x * cell * 0.18, cell * 0.09, 0, 7); ctx.fill();
-  };
-  const step = () => {
-    if (queue.length) dir = queue.shift();
-    const h = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
-    if (h.x < 0 || h.y < 0 || h.x >= N || h.y >= N || snake.some((s) => s.x === h.x && s.y === h.y)) return over();
-    snake.unshift(h);
-    if (h.x === food.x && h.y === food.y) {
-      score++; setScore(`🍎 ${score}`); haptic("light"); placeFood();
-      speed = Math.max(70, 150 - score * 3); clearInterval(timer); timer = setInterval(step, speed);
-    } else snake.pop();
-    draw();
-  };
-  const over = () => {
-    dead = true; clearInterval(timer);
-    const rec = saveBest("snake", score);
-    showResult({ icon: "🐍", title: rec && score ? "Yangi rekord!" : "O'yin tugadi", text: `Yeyilgan olmalar: <b>${score}</b>`, result: { g: "snake", s: score } });
-  };
-  const key = (e) => {
-    const m = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0], w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0] }[e.key];
-    if (m) { e.preventDefault(); turn(...m); }
-  };
-  pad.querySelectorAll("button").forEach((b) => b.addEventListener("pointerdown", (e) => { e.preventDefault(); haptic("light"); turn(...b.dataset.d.split(",").map(Number)); }));
-  let sx = 0, sy = 0;
-  c.addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
-  c.addEventListener("touchmove", (e) => {
-    const dx = e.touches[0].clientX - sx, dy = e.touches[0].clientY - sy;
-    if (Math.max(Math.abs(dx), Math.abs(dy)) < 22) return;
-    Math.abs(dx) > Math.abs(dy) ? turn(Math.sign(dx), 0) : turn(0, Math.sign(dy));
-    sx = e.touches[0].clientX; sy = e.touches[0].clientY;
-  }, { passive: true });
-  document.addEventListener("keydown", key);
-  placeFood(); setScore("🍎 0"); draw();
-  timer = setInterval(step, speed);
-  return () => { clearInterval(timer); document.removeEventListener("keydown", key); };
-}
-
-/* =====================================================================
-   2) KOSMIK QOCHISH
-   ===================================================================== */
-function startDodge(stage) {
-  const W = stageWidth(stage), H = Math.min(Math.round(W * 1.35), window.innerHeight - 110);
-  const { c, ctx } = makeCanvas(stage, W, H);
-  const hint = document.createElement("div"); hint.className = "sub center"; hint.style.marginTop = "10px";
-  hint.textContent = "Barmog'ingizni suring yoki ◀ ▶ tugmalarini bosing"; stage.appendChild(hint);
-
-  const ship = { x: W / 2, y: H - 46, r: 16 };
-  let rocks = [], stars = [], bg = [], t = 0, score = 0, bonus = 0, alive = true, raf = 0, last = performance.now(), targetX = W / 2, keys = {};
-  for (let i = 0; i < 50; i++) bg.push({ x: Math.random() * W, y: Math.random() * H, s: Math.random() * 1.6 + 0.3 });
-
-  const pointer = (e) => { const r = c.getBoundingClientRect(); targetX = Math.max(ship.r, Math.min(W - ship.r, e.clientX - r.left)); };
-  c.addEventListener("pointerdown", pointer); c.addEventListener("pointermove", (e) => (e.buttons || e.pointerType === "touch") && pointer(e));
-  const kd = (e) => { keys[e.key] = true; }, ku = (e) => { keys[e.key] = false; };
-  document.addEventListener("keydown", kd); document.addEventListener("keyup", ku);
-
-  const loop = (now) => {
-    const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
-    if (keys.ArrowLeft || keys.a) targetX -= 420 * dt;
-    if (keys.ArrowRight || keys.d) targetX += 420 * dt;
-    targetX = Math.max(ship.r, Math.min(W - ship.r, targetX));
-    ship.x += (targetX - ship.x) * Math.min(1, dt * 14);
-
-    const level = 1 + t / 12;
-    if (Math.random() < dt * (1.3 + level * 0.9)) { const r = 12 + Math.random() * 18; rocks.push({ x: Math.random() * W, y: -r, r, v: (110 + Math.random() * 90) * level, a: Math.random() * 6, va: (Math.random() - 0.5) * 3 }); }
-    if (Math.random() < dt * 0.6) stars.push({ x: 20 + Math.random() * (W - 40), y: -12, v: 140 });
-    rocks.forEach((r) => { r.y += r.v * dt; r.a += r.va * dt; });
-    stars.forEach((s) => (s.y += s.v * dt));
-    rocks = rocks.filter((r) => r.y < H + 40); stars = stars.filter((s) => s.y < H + 20 && !s.got);
-    for (const s of stars) if (Math.hypot(s.x - ship.x, s.y - ship.y) < ship.r + 12) { s.got = true; bonus += 50; haptic("light"); }
-    for (const r of rocks) if (Math.hypot(r.x - ship.x, r.y - ship.y) < r.r * 0.8 + ship.r * 0.7) return over();
-    score = Math.floor(t * 10) + bonus; setScore(`⭐ ${score}`);
-
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = "#070a18"; ctx.fillRect(0, 0, W, H);
-    bg.forEach((b) => { b.y += b.s * 40 * dt * level; if (b.y > H) { b.y = 0; b.x = Math.random() * W; } ctx.fillStyle = `rgba(255,255,255,${0.25 + b.s / 3})`; ctx.fillRect(b.x, b.y, b.s, b.s); });
-    ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    stars.forEach((s) => { ctx.font = "22px serif"; ctx.fillText("⭐", s.x, s.y); });
-    rocks.forEach((r) => {
-      ctx.save(); ctx.translate(r.x, r.y); ctx.rotate(r.a);
-      ctx.fillStyle = "#8d6e63"; ctx.beginPath();
-      for (let i = 0; i < 8; i++) { const ang = (i / 8) * Math.PI * 2, rr = r.r * (0.8 + ((i * 37) % 5) / 20); ctx.lineTo(Math.cos(ang) * rr, Math.sin(ang) * rr); }
-      ctx.closePath(); ctx.fill(); ctx.fillStyle = "#6d4c41"; ctx.beginPath(); ctx.arc(r.r * 0.25, -r.r * 0.2, r.r * 0.22, 0, 7); ctx.fill(); ctx.restore();
-    });
-    // kema
-    ctx.save(); ctx.translate(ship.x, ship.y);
-    ctx.fillStyle = `rgba(255,${150 + Math.random() * 80},60,.9)`; ctx.beginPath(); ctx.moveTo(-7, 14); ctx.lineTo(0, 22 + Math.random() * 10); ctx.lineTo(7, 14); ctx.fill();
-    ctx.fillStyle = "#e0e6ff"; ctx.beginPath(); ctx.moveTo(0, -20); ctx.lineTo(15, 16); ctx.lineTo(0, 9); ctx.lineTo(-15, 16); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = "#4fc3ff"; ctx.beginPath(); ctx.arc(0, -3, 5, 0, 7); ctx.fill(); ctx.restore();
-    raf = requestAnimationFrame(loop);
-  };
-  const over = () => {
-    alive = false; cancelAnimationFrame(raf); haptic("heavy");
-    const rec = saveBest("dodge", score);
-    showResult({ icon: "💥", title: rec ? "Yangi rekord!" : "Kema urildi!", text: `Ochko: <b>${score}</b><br>Vaqt: ${t.toFixed(1)} s`, result: { g: "dodge", s: score, t: Math.round(t) } });
-  };
-  raf = requestAnimationFrame(loop);
-  return () => { cancelAnimationFrame(raf); document.removeEventListener("keydown", kd); document.removeEventListener("keyup", ku); };
-}
-
-/* =====================================================================
-   3) MATEMATIKA POYGASI
-   ===================================================================== */
-function startMath(stage) {
-  const TOTAL = 30;
-  stage.innerHTML = `<div class="bar"><i id="mBar"></i></div><div class="q" id="mQ"></div><div class="ans" id="mA"></div><div class="msg" id="mMsg"></div>`;
-  let score = 0, left = TOTAL, lock = false, answer = 0, streak = 0;
-  const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
-  const next = () => {
-    const lv = Math.min(4, 1 + Math.floor(score / 5));
-    const ops = lv === 1 ? ["+", "-"] : lv === 2 ? ["+", "-", "×"] : ["+", "-", "×", "÷"];
-    const op = ops[rnd(0, ops.length - 1)];
-    let a, b;
-    if (op === "+") { a = rnd(2, 10 * lv * 2); b = rnd(2, 10 * lv * 2); answer = a + b; }
-    else if (op === "-") { a = rnd(5, 20 * lv); b = rnd(1, a); answer = a - b; }
-    else if (op === "×") { a = rnd(2, 3 + lv * 2); b = rnd(2, 9); answer = a * b; }
-    else { b = rnd(2, 9); answer = rnd(2, 3 + lv * 2); a = b * answer; }
-    $("mQ").textContent = `${a} ${op} ${b} = ?`;
-    const opts = new Set([answer]);
-    while (opts.size < 4) { const d = answer + rnd(-10, 10); if (d >= 0 && d !== answer) opts.add(d); }
-    $("mA").innerHTML = [...opts].sort(() => Math.random() - 0.5).map((v) => `<button data-v="${v}">${v}</button>`).join("");
-    $("mA").querySelectorAll("button").forEach((btn) => (btn.onclick = () => pick(btn)));
-    lock = false;
-  };
-  const pick = (btn) => {
-    if (lock) return; lock = true;
-    const ok = +btn.dataset.v === answer;
-    btn.classList.add(ok ? "ok" : "no");
-    if (ok) { score++; streak++; haptic("light"); $("mMsg").textContent = streak >= 3 ? `🔥 ${streak} ketma-ket!` : ""; }
-    else { streak = 0; haptic("bad"); left = Math.max(0, left - 2); $("mMsg").textContent = "❌ -2 soniya"; $("mA").querySelector(`[data-v="${answer}"]`).classList.add("ok"); }
-    setScore(`✅ ${score}`);
-    setTimeout(next, ok ? 180 : 600);
-  };
-  const tick = setInterval(() => {
-    left -= 0.1; $("mBar").style.width = Math.max(0, (left / TOTAL) * 100) + "%";
-    if (left <= 0) {
-      clearInterval(tick); lock = true;
-      const rec = saveBest("math", score);
-      showResult({ icon: "🧮", title: rec && score ? "Yangi rekord!" : "Vaqt tugadi!", text: `To'g'ri javoblar: <b>${score}</b>`, result: { g: "math", s: score } });
-    }
-  }, 100);
-  setScore("✅ 0"); next();
-  return () => clearInterval(tick);
-}
-
-/* =====================================================================
-   4) XOTIRA
-   ===================================================================== */
-function startMemory(stage) {
-  const pool = ["🍉", "🍇", "🍒", "🥝", "🍍", "🥥", "🌶️", "🍋", "🍑", "🥕", "🍄", "🌽"];
-  const picked = pool.sort(() => Math.random() - 0.5).slice(0, 8);
-  const deck = [...picked, ...picked].sort(() => Math.random() - 0.5);
-  stage.innerHTML = `<div class="msg" id="memMsg">Juftliklarni toping!</div><div class="mem" id="mem"></div>`;
-  $("mem").innerHTML = deck.map((e, i) => `<div class="mc" data-i="${i}"><div class="f">?</div><div class="b">${e}</div></div>`).join("");
-  let open = [], moves = 0, done = 0, lock = false, t0 = Date.now();
-  const tick = setInterval(() => setScore(`👣 ${moves} · ⏱ ${Math.floor((Date.now() - t0) / 1000)}s`), 500);
-  $("mem").querySelectorAll(".mc").forEach((card) => (card.onclick = () => {
-    if (lock || card.classList.contains("open") || card.classList.contains("done")) return;
-    card.classList.add("open"); haptic("light"); open.push(card);
-    if (open.length < 2) return;
-    moves++; lock = true;
-    const [a, b] = open;
-    if (deck[a.dataset.i] === deck[b.dataset.i]) {
-      setTimeout(() => {
-        a.classList.add("done"); b.classList.add("done"); open = []; lock = false; done++; haptic("ok");
-        if (done === 8) {
-          clearInterval(tick);
-          const sec = Math.floor((Date.now() - t0) / 1000);
-          const rec = saveBest("memory", moves, true);
-          showResult({ icon: "🧠", title: rec ? "Yangi rekord!" : "Barakalla!", text: `Yurishlar: <b>${moves}</b><br>Vaqt: ${sec} s`, result: { g: "memory", m: moves, t: sec } });
-        }
-      }, 300);
-    } else {
-      setTimeout(() => { a.classList.remove("open"); b.classList.remove("open"); open = []; lock = false; }, 750);
-    }
-    setScore(`👣 ${moves} · ⏱ ${Math.floor((Date.now() - t0) / 1000)}s`);
-  }));
-  setScore("👣 0 · ⏱ 0s");
-  return () => clearInterval(tick);
-}
-
-/* =====================================================================
-   5) REAKSIYA
-   ===================================================================== */
-function startReaction(stage) {
-  const ROUNDS = 5;
-  stage.innerHTML = `<div class="rx idle" id="rx">Boshlash uchun bosing<small>Ekran yashil bo'lishi bilan tez bosing. ${ROUNDS} urinish.</small></div><div class="msg" id="rxList"></div>`;
-  const box = $("rx");
-  let state = "idle", times = [], start = 0, timeout = null;
-  const wait = () => {
-    state = "wait"; box.className = "rx wait"; box.innerHTML = "Kuting...<small>Yashil bo'lishini kuting</small>";
-    timeout = setTimeout(() => { state = "go"; box.className = "rx go"; box.innerHTML = "BOSING!"; start = performance.now(); haptic("medium"); }, 1200 + Math.random() * 2800);
-  };
-  box.addEventListener("pointerdown", () => {
-    if (state === "idle" || state === "show") return wait();
-    if (state === "wait") {
-      clearTimeout(timeout); state = "show"; box.className = "rx early"; box.innerHTML = "Juda erta! 😅<small>Qayta urinish uchun bosing</small>"; haptic("bad"); return;
-    }
-    if (state === "go") {
-      const ms = Math.round(performance.now() - start); times.push(ms);
-      $("rxList").textContent = times.map((x) => x + " ms").join(" · ");
-      setScore(`${times.length}/${ROUNDS}`);
-      if (times.length >= ROUNDS) {
-        state = "end";
-        const avg = Math.round(times.reduce((a, b) => a + b, 0) / times.length);
-        const rec = saveBest("reaction", avg, true);
-        const baho = avg < 230 ? "⚡ Chaqmoqdek!" : avg < 280 ? "🔥 Juda tez!" : avg < 350 ? "👍 Yaxshi" : "🐢 Mashq qiling";
-        showResult({ icon: "⚡", title: rec ? "Yangi rekord!" : baho, text: `O'rtacha: <b>${avg} ms</b><br>Eng tez: ${Math.min(...times)} ms`, result: { g: "reaction", s: avg, a: times } });
-        return;
-      }
-      state = "show"; box.className = "rx idle"; box.innerHTML = `${ms} ms<small>Keyingisi uchun bosing</small>`;
-    }
-  });
-  setScore(`0/${ROUNDS}`);
-  return () => clearTimeout(timeout);
-}
-
-/* =====================================================================
-   6) X-O
-   ===================================================================== */
-function startXO(stage) {
-  let diff = store("xo_diff") || "easy";
-  stage.innerHTML = `<div class="seg"><button data-d="easy">😊 Oson</button><button data-d="hard">😈 Qiyin</button></div><div class="msg" id="xoMsg">Siz ❌ bilan o'ynaysiz</div><div class="xo" id="xo"></div>`;
-  const LINES = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
-  let b = Array(9).fill(""), over = false, timer = null;
-  const wins = store("best_xo") || 0; setScore(`🏆 ${wins}`);
-  const winner = (bd) => { for (const l of LINES) if (bd[l[0]] && bd[l[0]] === bd[l[1]] && bd[l[1]] === bd[l[2]]) return { w: bd[l[0]], l }; return bd.every(Boolean) ? { w: "draw" } : null; };
-  const minimax = (bd, me) => {
-    const r = winner(bd); if (r) return { s: r.w === "O" ? 10 : r.w === "X" ? -10 : 0 };
-    let best = { s: me === "O" ? -99 : 99, i: -1 };
-    bd.forEach((v, i) => { if (v) return; bd[i] = me; const s = minimax(bd, me === "O" ? "X" : "O").s; bd[i] = "";
-      if (me === "O" ? s > best.s : s < best.s) best = { s, i }; });
-    return best;
-  };
-  const botMove = () => {
-    const empty = b.map((v, i) => (v ? -1 : i)).filter((i) => i >= 0);
-    if (diff === "easy" && Math.random() < 0.6) return empty[(Math.random() * empty.length) | 0];
-    return minimax(b.slice(), "O").i;
-  };
-  const render = (hl) => {
-    $("xo").innerHTML = b.map((v, i) => `<button data-i="${i}" class="${v === "X" ? "x" : v === "O" ? "o" : ""} ${hl && hl.includes(i) ? "win" : ""}">${v === "X" ? "✕" : v === "O" ? "○" : ""}</button>`).join("");
-    $("xo").querySelectorAll("button").forEach((btn) => (btn.onclick = () => play(+btn.dataset.i)));
-  };
-  const finish = (r) => {
-    over = true; render(r.l);
-    const s = r.w === "X" ? 2 : r.w === "draw" ? 1 : 0;
-    if (s === 2) store("best_xo", (store("best_xo") || 0) + 1);
-    setTimeout(() => showResult({
-      icon: s === 2 ? "🎉" : s === 1 ? "🤝" : "🤖", title: s === 2 ? "Siz yutdingiz!" : s === 1 ? "Durang!" : "Bot yutdi",
-      text: `Daraja: <b>${diff === "hard" ? "Qiyin 😈" : "Oson 😊"}</b>`, result: { g: "xo", s, d: diff },
-    }), 600);
-  };
-  const play = (i) => {
-    if (over || b[i]) return;
-    b[i] = "X"; haptic("light"); render();
-    let r = winner(b); if (r) return finish(r);
-    $("xoMsg").textContent = "🤖 Bot o'ylayapti...";
-    timer = setTimeout(() => { b[botMove()] = "O"; render(); $("xoMsg").textContent = "Sizning navbatingiz ❌"; const r2 = winner(b); if (r2) finish(r2); }, 380);
-  };
-  const seg = stage.querySelectorAll(".seg button");
-  const paintSeg = () => seg.forEach((x) => x.classList.toggle("on", x.dataset.d === diff));
-  seg.forEach((x) => (x.onclick = () => { diff = x.dataset.d; store("xo_diff", diff); paintSeg(); b = Array(9).fill(""); over = false; clearTimeout(timer); $("xoMsg").textContent = "Siz ❌ bilan o'ynaysiz"; render(); }));
-  paintSeg(); render();
-  return () => clearTimeout(timer);
-}
-
-const STARTERS = { snake: startSnake, dodge: startDodge, math: startMath, memory: startMemory, reaction: startReaction, xo: startXO };
-renderHome();
+</script>
+<script src="js/arcade.js"></script>
+<script src="js/puzzle.js"></script>
+<script src="js/brain.js"></script>
+<script src="js/casino.js"></script>
+<script>
+  G.list.forEach((g) => (GMAP[g.id] = g));
+  renderHome();
 </script>
 </body>
 </html>
