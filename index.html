@@ -450,7 +450,7 @@ function tileHtml(g, i) {
 }
 function renderFeatured() {
   const day = Math.floor(Date.now() / 864e5), pool = G.list.filter((g) => g.tag);
-  const picks = []; for (let k = 0; picks.length < 5 && k < 50; k++) { const g = pool[(day * 7 + k * 13) % pool.length]; if (!picks.includes(g)) picks.push(g); }
+  const picks = GMAP.biloldrop ? [GMAP.biloldrop] : []; for (let k = 0; picks.length < 5 && k < 50; k++) { const g = pool[(day * 7 + k * 13) % pool.length]; if (!picks.includes(g)) picks.push(g); }
   $("featured").innerHTML = picks.map((g) => `<div class="ft" data-g="${g.id}" style="--c:${catColor(g.cat)}"><div class="n">${g.nm}</div><div class="d">${g.ds}</div><div class="go">O'ynash <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div><div class="e">${g.ico}</div></div>`).join("");
   $("featured").querySelectorAll(".ft").forEach((c) => (c.onclick = () => launch(c.dataset.g, c)));
   $("featDay").textContent = `${G.list.length} ta o'yin`;

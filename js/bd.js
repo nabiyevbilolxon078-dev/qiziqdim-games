@@ -277,6 +277,7 @@ PAGES.terminal = () => {
    O'YINLAR
    ===================================================================== */
 const GAMES = [
+  ["battle", "Keys jangi", "Botlarga qarshi keys ochish — eng qimmati hammasini oladi", "#ff4d5e"],
   ["upgrade", "Apgreyd", "Skin yoki balansni qimmatroq skinga", "#8b6cff"],
   ["contract", "Kontrakt", "3–10 skindan bitta yangi skin", "#2fd4c7"],
   ["roulette", "Ruletka", "Rangni tanlang: ×2, ×3, ×5, ×50", "#ff4d5e"],
@@ -291,6 +292,63 @@ PAGES.games = () => {
   const g = el(GAMES.map(([k, n, d, c], i) => `<div class="gm" data-g="${k}" style="--gc:${c};--i:${i}"><div class="t">${n}</div><div class="d">${d}</div>${SVGS[k === "upgrade" ? "up" : k]}</div>`).join(""), "games");
   g.querySelectorAll(".gm").forEach((x) => (x.onclick = () => { haptic(); go("games/" + x.dataset.g); }));
 };
+SVGS.battle = '<svg viewBox="0 0 64 64" fill="none" stroke="#eef1f7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 10l26 26M10 10h8M10 10v8M54 10L28 36M54 10h-8M54 10v8M22 40l-8 8M42 40l8 8M16 46l-6 6M48 46l6 6"/></svg>';
+
+/* --- Keys jangi --- */
+PAGES["games/battle"] = () => {
+  gameHead("battle");
+  let ci = store("bd_bt_case") || "ak", players = 2, rounds = 1, alive = true;
+  const setup = () => {
+    [...page.children].slice(2).forEach((x) => x.remove());
+    const c = () => CASES.find((x) => x.id === ci) || CASES[1];
+    const sel = el(`<select class="inp" style="margin-bottom:10px">${CASES.filter((x) => x.id !== "free").map((x) => `<option value="${x.id}" ${x.id === ci ? "selected" : ""}>${x.n} — ${som(x.price)}</option>`).join("")}</select>`).firstChild;
+    const art = el("", "hero");
+    el(`<h3 style="margin-top:6px">O'yinchilar</h3>`);
+    const ps = el(`<button data-p="2">1 vs 1</button><button data-p="3">1 vs 1 vs 1</button><button data-p="4">1 vs 3</button>`, "seg");
+    el(`<h3 style="margin-top:6px">Raundlar</h3>`);
+    const rs = el(`<button data-r="1">1</button><button data-r="2">2</button><button data-r="3">3</button><button data-r="5">5</button>`, "seg");
+    const goB = el(`<button class="btn" style="margin-top:6px"></button>`).firstChild;
+    const paint = () => {
+      art.innerHTML = `<div class="art" style="height:130px"><img src="${c().art[0]}" alt=""></div>`;
+      ps.querySelectorAll("button").forEach((b) => b.classList.toggle("on", +b.dataset.p === players));
+      rs.querySelectorAll("button").forEach((b) => b.classList.toggle("on", +b.dataset.r === rounds));
+      goB.textContent = `Jangni boshlash · ${som(c().price * rounds)}`;
+    };
+    sel.onchange = () => { ci = sel.value; store("bd_bt_case", ci); paint(); };
+    ps.querySelectorAll("button").forEach((b) => (b.onclick = () => { players = +b.dataset.p; paint(); }));
+    rs.querySelectorAll("button").forEach((b) => (b.onclick = () => { rounds = +b.dataset.r; paint(); }));
+    goB.onclick = () => { if (pay(c().price * rounds)) fight(c()); };
+    paint();
+  };
+  const fight = async (c) => {
+    [...page.children].slice(2).forEach((x) => x.remove()); window.scrollTo(0, 0); Tasks.ev("case", rounds);
+    const names = ["Siz", ...shuffle(BOTS).slice(0, players - 1).map((n) => "🤖 " + n)];
+    const info = el(`${c.n} · ${rounds} raund`, "msg");
+    const cols = el(names.map((n) => `<div class="bt-col"><div class="who">${n}</div><div class="sum">0 so'm</div><div class="sp"></div><div class="bt-got"></div></div>`).join(""), "bt-cols");
+    cols.style.gridTemplateColumns = `repeat(${players},1fr)`;
+    const els = [...cols.children], sums = names.map(() => 0), got = names.map(() => []);
+    for (let r = 0; r < rounds && alive; r++) {
+      info.textContent = `${r + 1}-raund / ${rounds}`;
+      const drops = names.map(() => c.gen());
+      await Promise.all(drops.map((d, k) => CS.spinV(els[k].querySelector(".sp"), c.gen, d)));
+      if (!alive) return;
+      drops.forEach((d, k) => { sums[k] += d.v; got[k].push(d); els[k].querySelector(".sum").textContent = som(sums[k]); els[k].querySelector(".bt-got").insertAdjacentHTML("beforeend", `<img src="${CS.img(D.skins[d.i][2], 96)}" style="--rc:${CS.RC[D.skins[d.i][1]]}" alt="">`); if (k === 0) liveAdd(d, "Siz"); });
+      haptic("medium"); await sleep(600);
+    }
+    if (!alive) return;
+    const top = Math.max(...sums), w = pick(sums.map((s, k) => (s === top ? k : -1)).filter((k) => k >= 0));
+    els[w].classList.add("win");
+    const all = got.flat(), total = all.reduce((a, d) => a + d.v, 0);
+    if (w === 0) { CS.inv.add(all); S.ret(total); all.forEach((d) => S.drop(d)); Confetti.fire(140); haptic("ok"); } else haptic("bad");
+    const box = el(`<div class="msg">${w === 0 ? `Siz yutdingiz! ${all.length} ta skin (${som(total)}) inventarda` : `${names[w]} yutdi (${som(top)})`}</div><div class="row"><button class="btn ghost" data-a="new">Sozlamalar</button><button class="btn" data-a="again">Yana · ${som(c.price * rounds)}</button></div>`);
+    box.querySelector('[data-a="new"]').onclick = setup;
+    box.querySelector('[data-a="again"]').onclick = () => { if (pay(c.price * rounds)) fight(c); };
+    box.scrollIntoView({ behavior: REDUCED ? "auto" : "smooth", block: "center" });
+  };
+  setup();
+  return () => (alive = false);
+};
+
 const gameHead = (k) => { backBtn("O'yinlar", () => go("games")); const g = GAMES.find((x) => x[0] === k); el(`<h2 style="margin-top:0">${g[1]}</h2>`); };
 
 /* --- Apgreyd --- */
