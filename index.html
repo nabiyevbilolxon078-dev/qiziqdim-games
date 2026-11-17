@@ -297,7 +297,7 @@
   <div class="hero">
     <div class="head">
       <div><div class="hello" id="hello">Xush kelibsiz!</div><h1>O'yin markazi</h1></div>
-      <div class="chips" id="chipsTop" title="Kazino fishkalari"></div>
+      <div class="chips" id="chipsTop" title="Biloldrop balansi" role="button" onclick="location.href='biloldrop.html'" style="cursor:pointer"></div>
     </div>
     <label class="search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
@@ -423,7 +423,7 @@ const G = {
   list: [],
   add(g) { this.list.push(Object.assign({ cat: "arcade", max: 150, ds: "" }, g)); },
 };
-const CATS = [["all", "Hammasi"], ["arcade", "Arkada"], ["puzzle", "Boshqotirma"], ["brain", "Aql"], ["speed", "Tezlik"], ["casino", "Kazino"], ["cs2", "CS2"]];
+const CATS = [["all", "Hammasi"], ["arcade", "Arkada"], ["puzzle", "Boshqotirma"], ["brain", "Aql"], ["speed", "Tezlik"], ["cs2", "Biloldrop"]];
 const catColor = (c) => `var(--c-${c})`;
 
 /* ---------- Kazino fishkalari (faqat o'yin uchun, tangaga almashtirilmaydi) ---------- */
@@ -616,7 +616,6 @@ $("rClaim").onclick = () => {
 <script src="js/arcade.js"></script>
 <script src="js/puzzle.js"></script>
 <script src="js/brain.js"></script>
-<script src="js/casino.js"></script>
 <script src="js/cs2.js"></script>
 <script>
   G.list.forEach((g) => (GMAP[g.id] = g));

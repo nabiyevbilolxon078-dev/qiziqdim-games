@@ -146,6 +146,28 @@
   .marker::before { top: 0; border-top-color: var(--lime); } .marker::after { bottom: 0; border-bottom-color: var(--lime); }
   .win-sk { animation: winPop .6s var(--ease) both; }
   @keyframes winPop { from { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.06); } }
+  /* Kazino o'yinlari (casino.js) uchun */
+  .btn.good { background: var(--green); color: #04240f; } .btn.bad { background: var(--red); color: #fff; }
+  .big { font: 700 40px var(--display); letter-spacing: -0.02em; text-align: center; margin: 16px 0; }
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .opts button { border: 0; border-radius: 14px; background: var(--panel-2); color: var(--text); font: 800 16px var(--font); padding: 14px 6px; transition: transform .12s var(--ease); }
+  .opts button:active { transform: scale(.95); }
+  .board { display: grid; gap: 6px; margin: 8px auto; }
+  input.ans { width: 100%; padding: 12px; font: 700 18px var(--display); text-align: center; border-radius: 13px; border: 1px solid var(--line); background: var(--panel); color: var(--text); outline: none; }
+  .pcard { display: inline-flex; width: 54px; height: 76px; border-radius: 9px; background: #fbf8f0; color: #1a1f38; font: 700 18px var(--display); align-items: center; justify-content: center; margin: 3px; box-shadow: 0 6px 14px -6px rgba(0,0,0,.7); animation: deal .4s var(--ease) both; }
+  .pcard.red { color: #d63031; }
+  .pcard.back { background: repeating-conic-gradient(from 45deg, #252a3a 0 25%, #1b1f2b 0 50%) 0 0/14px 14px; border: 3px solid #fbf8f0; color: transparent; }
+  @keyframes deal { from { opacity: 0; transform: translateY(-24px) rotate(-8deg); } }
+  .reels { display: flex; justify-content: center; gap: 10px; margin: 14px 0; padding: 14px; border-radius: 22px; background: var(--panel); box-shadow: inset 0 0 0 2px rgba(196,255,61,.35); }
+  .reel { width: 78px; height: 92px; background: linear-gradient(180deg, #fbfbf5, #e4e6dc); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 48px; box-shadow: inset 0 6px 10px -4px rgba(0,0,0,.35), inset 0 -6px 10px -4px rgba(0,0,0,.35); overflow: hidden; }
+  .reel.spin { filter: blur(1.5px); animation: reelSpin .12s linear infinite; }
+  .reel.win { animation: winGlow .9s var(--ease) 2; }
+  @keyframes reelSpin { 0% { transform: translateY(-6px); } 100% { transform: translateY(6px); } }
+  @keyframes winGlow { 50% { box-shadow: 0 0 0 4px var(--lime), 0 0 26px 4px rgba(196,255,61,.6); } }
+  .kbet { background: var(--panel); border-radius: 16px; padding: 10px; margin: 12px 0; }
+  .gm.cas { min-height: 96px; }
+  .gm.cas .e { position: absolute; right: 10px; bottom: 6px; font-size: 40px; filter: drop-shadow(0 6px 8px rgba(0,0,0,.4)); }
+
   /* Keys jangi */
   .bt-cols { display: grid; gap: 8px; }
   .bt-col { background: var(--panel); border-radius: 14px; padding: 8px; text-align: center; transition: box-shadow .3s; }
@@ -267,7 +289,8 @@ const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const shuffle = (arr) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-const G = { add() {} }; // cs2.js dagi O'yin markazi o'yinlari bu sahifada kerak emas
+const G = { list: [], add(g) { if (g.cat === "casino") this.list.push(Object.assign({ ds: "" }, g)); } }; // faqat kazino o'yinlari olinadi
+window.CHIP_FMT = (n) => som(n / 100); // kazino summalari so'mda
 let RATE = 12000;
 const Chips = {
   get() { let v = store("chips"); if (typeof v !== "number") { v = 1000; store("chips", v); } return v; },
@@ -289,7 +312,7 @@ const Confetti = (() => {
     for (const p of ps) { p.vy += 520 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.r += p.vr * dt; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.globalAlpha = Math.min(1, p.life * 2); ctx.fillStyle = p.color; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore(); }
     if (ps.length) raf = requestAnimationFrame(loop); else { raf = 0; ctx.clearRect(0, 0, innerWidth, innerHeight); }
   };
-  return { fire(n = 90) { if (REDUCED) n = 12; for (let i = 0; i < n; i++) { const a = -Math.PI / 2 + (Math.random() - 0.5) * 1.9, s = 380 + Math.random() * 420; ps.push({ x: innerWidth / 2, y: innerHeight * 0.6, vx: Math.cos(a) * s, vy: Math.sin(a) * s, r: 0, vr: (Math.random() - 0.5) * 14, w: 7 + Math.random() * 5, h: 4 + Math.random() * 4, life: 2.4 + Math.random(), color: pick(COLS) }); } if (!raf) { last = performance.now(); raf = requestAnimationFrame(loop); } } };
+  return { fire(a, b, opts) { let n = typeof a === "number" && b === undefined ? a : (opts && opts.n) || 90; if (REDUCED) n = 12; for (let i = 0; i < n; i++) { const a = -Math.PI / 2 + (Math.random() - 0.5) * 1.9, s = 380 + Math.random() * 420; ps.push({ x: innerWidth / 2, y: innerHeight * 0.6, vx: Math.cos(a) * s, vy: Math.sin(a) * s, r: 0, vr: (Math.random() - 0.5) * 14, w: 7 + Math.random() * 5, h: 4 + Math.random() * 4, life: 2.4 + Math.random(), color: pick(COLS) }); } if (!raf) { last = performance.now(); raf = requestAnimationFrame(loop); } } };
 })();
 function floatText(el, text, color = "#c4ff3d") { const r = el.getBoundingClientRect(), d = document.createElement("div"); d.className = "float"; d.textContent = text; d.style.color = color; d.style.left = r.left + r.width / 2 - 30 + "px"; d.style.top = r.top - 4 + "px"; document.body.appendChild(d); setTimeout(() => d.remove(), 950); }
 function shakeEl(el) { if (REDUCED || !el.animate) return; el.animate([{ transform: "translateX(-7px)" }, { transform: "translateX(6px)" }, { transform: "translateX(-3px)" }, { transform: "none" }], { duration: 320 }); }
@@ -297,6 +320,7 @@ $("toHub").onclick = () => { location.href = "index.html"; };
 if (tg && tg.BackButton) { tg.BackButton.show(); tg.BackButton.onClick(() => (location.href = "index.html")); }
 </script>
 <script src="js/cs2.js"></script>
+<script src="js/casino.js"></script>
 <script src="js/bd.js"></script>
 </body>
 </html>

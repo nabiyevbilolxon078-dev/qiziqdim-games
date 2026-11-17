@@ -3,15 +3,18 @@
    🎰 KAZINO (11 ta) — o'yin fishkalari bilan (haqiqiy pul emas)
    ===================================================================== */
 
+/* Fishka summasini ko'rsatish: O'yin markazida fishka, Biloldropda so'm (window.CHIP_FMT) */
+const chipFmt = (n) => (window.CHIP_FMT ? window.CHIP_FMT(n) : n);
+
 /* Natija xabari: g'alaba/yutqazish */
 function casMsg(el, win, bet, extra = "") {
   if (win > bet) {
-    el.innerHTML = `Yutuq: <span style="color:var(--green)">+${win - bet}</span> ${extra}`; haptic("ok");
+    el.innerHTML = `Yutuq: <span style="color:var(--green)">+${chipFmt(win - bet)}</span> ${extra}`; haptic("ok");
     if (el.animate) el.animate([{ transform: "scale(.8)", opacity: 0 }, { transform: "scale(1.08)" }, { transform: "none", opacity: 1 }], { duration: 420, easing: "cubic-bezier(.16,1,.3,1)" });
     if (win >= bet * 3) Confetti.fire(innerWidth / 2, innerHeight * 0.55, { n: win >= bet * 10 ? 140 : 60, coins: true });
   }
   else if (win === bet && win > 0) { el.innerHTML = `🤝 Qaytdi ${extra}`; }
-  else { el.innerHTML = `😔 −${bet - win} ${extra}`; haptic("bad"); }
+  else { el.innerHTML = `😔 −${chipFmt(bet - win)} ${extra}`; haptic("bad"); }
   Chips.paint();
 }
 const SUITS = ["♠", "♥", "♦", "♣"], RANKS = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
@@ -146,7 +149,7 @@ G.add({
       stop = api.loop((dt) => {
         t += dt; m = Math.pow(Math.E, 0.12 * t * (1 + t / 20));
         const x = 10 + Math.min(W - 40, t * 40), y = H - 10 - Math.min(H - 70, Math.log(m) * 70); pts.push([x, y]);
-        btn.textContent = `💰 OLISH  ${Math.floor(b * m)}`;
+        btn.textContent = `💰 OLISH  ${chipFmt(Math.floor(b * m))}`;
         if (m >= crashAt) { m = crashAt; state = "boom"; draw(); casMsg(msg, 0, b, `(portladi ×${crashAt.toFixed(2)})`); btn.textContent = "🚀 UCHIRISH"; btn.className = "btn"; state = "idle"; return false; }
         draw();
       });
@@ -246,7 +249,7 @@ G.add({
       if (mines.has(i)) { playing = false; haptic("heavy"); paint(true); c.textContent = "💥"; casMsg(msg, 0, b); btn.textContent = "▶️ BOSHLASH"; btn.className = "btn"; return; }
       opened.add(i); haptic(); paint(false);
       if (opened.size === N - minesN) return cashout();
-      msg.textContent = `Hozir: ×${mult(opened.size)} → keyingi: ×${mult(opened.size + 1)}`; btn.textContent = `💰 OLISH ${Math.floor(b * mult(opened.size))}`;
+      msg.textContent = `Hozir: ×${mult(opened.size)} → keyingi: ×${mult(opened.size + 1)}`; btn.textContent = `💰 OLISH ${chipFmt(Math.floor(b * mult(opened.size)))}`;
     }));
     opened = new Set(); mines = new Set(); segPaint(); paint(false);
   },
@@ -263,7 +266,7 @@ G.add({
     const bet = api.bet(); const btn = api.el(`<button class="btn" style="margin-top:12px">▶️ BOSHLASH</button>`).firstChild;
     let deck, cur, m = 1, b = 0, playing = false;
     const odds = (up) => { const k = v(cur); const n = up ? 12 - k : k; return n <= 0 ? 0 : Math.round((0.95 * 13 / n) * 100) / 100; };
-    const ui = () => { view.innerHTML = cardHtml(cur); acts.style.display = playing ? "flex" : "none"; acts.querySelector('[data-a="hi"]').textContent = `⬆️ Katta ×${odds(true)}`; acts.querySelector('[data-a="lo"]').textContent = `⬇️ Kichik ×${odds(false)}`; btn.textContent = playing ? `💰 OLISH ${Math.floor(b * m)}` : "▶️ BOSHLASH"; btn.className = playing ? "btn good" : "btn"; };
+    const ui = () => { view.innerHTML = cardHtml(cur); acts.style.display = playing ? "flex" : "none"; acts.querySelector('[data-a="hi"]').textContent = `⬆️ Katta ×${odds(true)}`; acts.querySelector('[data-a="lo"]').textContent = `⬇️ Kichik ×${odds(false)}`; btn.textContent = playing ? `💰 OLISH ${chipFmt(Math.floor(b * m))}` : "▶️ BOSHLASH"; btn.className = playing ? "btn good" : "btn"; };
     const guess = (up) => {
       if (!playing) return; const o = odds(up); if (!o) return api.toast("Bu tomonga imkon yo'q");
       const nx = deck.pop(); const ok = up ? v(nx) > v(cur) : v(nx) < v(cur); cur = nx;

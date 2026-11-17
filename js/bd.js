@@ -291,6 +291,54 @@ PAGES.games = () => {
   el(`<h2>O'yinlar</h2>`);
   const g = el(GAMES.map(([k, n, d, c], i) => `<div class="gm" data-g="${k}" style="--gc:${c};--i:${i}"><div class="t">${n}</div><div class="d">${d}</div>${SVGS[k === "upgrade" ? "up" : k]}</div>`).join(""), "games");
   g.querySelectorAll(".gm").forEach((x) => (x.onclick = () => { haptic(); go("games/" + x.dataset.g); }));
+  el(`<h3>Kazino <small>${G.list.length} ta</small></h3>`);
+  const COLS = ["#ff4d5e", "#8b6cff", "#3fd27c", "#ffc542", "#2fd4c7", "#ff8a3d"];
+  const k2 = el(G.list.map((x, i) => `<div class="gm cas" data-k="${x.id}" style="--gc:${COLS[i % COLS.length]};--i:${i}"><div class="t">${x.nm}</div><div class="d">${x.ds}</div><span class="e">${x.ico}</span></div>`).join(""), "games");
+  k2.querySelectorAll(".gm").forEach((x) => (x.onclick = () => { haptic(); go("casino", x.dataset.k); }));
+};
+
+/* --- Kazino o'yinlari (casino.js) uchun muhit: summalar so'mda, ichida fishka (1 = $0.01) --- */
+function makeBoard(api, n, cols, maxW = 360, fs = 24) {
+  const b = api.el(Array.from({ length: n }, (_, i) => `<button class="cell" data-i="${i}" style="font-size:${fs}px"></button>`).join(""), "board");
+  b.style.gridTemplateColumns = `repeat(${cols},1fr)`; b.style.maxWidth = maxW + "px";
+  return [b, [...b.children]];
+}
+function casinoApi(stage) {
+  const toChips = (s) => Math.max(1, Math.round((s / RATE) * 100));
+  return {
+    score() {}, haptic, toast, rnd, pick, shuffle, sleep, clamp, best: () => false, end() {},
+    width: () => Math.min(stage.clientWidth || 340, 480),
+    el(html, cls = "") { const d = document.createElement("div"); if (cls) d.className = cls; d.innerHTML = html; stage.appendChild(d); return d; },
+    canvas(w, h) { const c = document.createElement("canvas"), dpr = devicePixelRatio || 1; c.width = w * dpr; c.height = h * dpr; c.style.width = w + "px"; c.style.height = h + "px"; const ctx = c.getContext("2d"); ctx.scale(dpr, dpr); stage.appendChild(c); return { c, ctx }; },
+    loop(fn) { let raf = 0, last = performance.now(), on = true; const f = (now) => { if (!on) return; const dt = Math.min(0.05, (now - last) / 1000); last = now; if (fn(dt) === false) { on = false; return; } raf = requestAnimationFrame(f); }; raf = requestAnimationFrame(f); return () => { on = false; cancelAnimationFrame(raf); }; },
+    pointer(c, cb) { const h = (e) => { const r = c.getBoundingClientRect(); cb(e.clientX - r.left, e.clientY - r.top, e.type); }; c.addEventListener("pointerdown", h); c.addEventListener("pointermove", (e) => (e.buttons || e.pointerType === "touch") && h(e)); },
+    keys() { return () => {}; },
+    confetti: (o) => Confetti.fire((o && o.n) || 80), shake: () => shakeEl(stage), flash() {}, float: floatText,
+    particles: () => ({ burst() {}, text() {}, ring() {}, step() {} }),
+    bet(parent, onChange) {
+      let v = store("bd_kbet") || toChips(5000);
+      const d = document.createElement("div"); d.className = "bet";
+      d.innerHTML = `<div class="l"><button data-a="-">−</button><input readonly><button data-a="+">+</button></div><div class="q"><button data-q="1000">1 000</button><button data-q="10000">10 000</button><button data-q="half">½</button><button data-q="x2">×2</button></div>`;
+      (parent || stage).appendChild(d);
+      const paint = () => { v = clamp(Math.round(v), toChips(1000), Math.max(toChips(1000), Chips.get())); store("bd_kbet", v); d.querySelector("input").value = som(v / 100); onChange && onChange(v); };
+      d.querySelectorAll("button").forEach((b) => (b.onclick = () => { haptic(); const a = b.dataset.a, q = b.dataset.q, st = v < toChips(10000) ? toChips(1000) : v < toChips(100000) ? toChips(5000) : toChips(50000); if (a === "+") v += st; else if (a === "-") v -= st; else if (q === "half") v /= 2; else if (q === "x2") v *= 2; else v = toChips(+q); paint(); }));
+      paint();
+      return { get: () => v, paint };
+    },
+  };
+}
+PAGES.casino = (id) => {
+  const g = G.list.find((x) => x.id === id);
+  backBtn("O'yinlar", () => go("games"));
+  el(`<h2 style="margin-top:0">${g.ico} ${g.nm}</h2><p class="sub">${g.ds}</p>`);
+  const stage = el(""); stage.style.position = "relative";
+  // Kazinodagi tikish va yutuqlar Pass, Boss, VIP va vazifalarga ham hisoblanadi
+  const take = Chips.take, add = Chips.add;
+  Chips.take = function (n) { const ok = take.call(this, n); if (ok) S.spend(n / 100); return ok; };
+  Chips.add = function (n) { if (n > 0) S.ret(n / 100); return add.call(this, n); };
+  let stop = null;
+  try { stop = g.start(stage, casinoApi(stage)); } catch (e) { console.error(e); toast("Xatolik: " + e.message); }
+  return () => { Chips.take = take; Chips.add = add; if (stop) stop(); };
 };
 SVGS.battle = '<svg viewBox="0 0 64 64" fill="none" stroke="#eef1f7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 10l26 26M10 10h8M10 10v8M54 10L28 36M54 10h-8M54 10v8M22 40l-8 8M42 40l8 8M16 46l-6 6M48 46l6 6"/></svg>';
 
