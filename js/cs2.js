@@ -14,6 +14,7 @@ const CS = (() => {
   const load = () => (data ? Promise.resolve(data) : (loading ||= fetch("data/cs2.json").then((r) => r.json()).then((d) => (data = d))));
   const img = (path, size = 256) => (path ? `${data.imgPrefix}${path}/${size}fx${size}f` : "");
   const usd = (v) => "$" + (v >= 1000 ? Math.round(v).toLocaleString("en-US") : v.toFixed(2));
+  let money = usd; // Biloldrop so'mda ko'rsatadi (setMoney)
   const cost = (c) => Math.round((c.p + c.k) * 100) / 100;
   const bal = () => Chips.get() / 100;
   const pay = (v) => Chips.take(Math.round(v * 100));
@@ -42,14 +43,14 @@ const CS = (() => {
   const label = (d) => { const [a, b] = parts(d); return `${d.st ? "StatTrak™ " : ""}${a} | ${b}${d.w >= 0 ? ` (${WN[d.w]})` : ""}`; };
   function tile(d, extra = "") {
     const s = data.skins[d.i], [a, b] = parts(d);
-    return `<div class="sk" data-id="${d.id || ""}" style="--rc:${RC[s[1]]}">${d.st ? '<span class="st">ST™</span>' : ""}<img loading="lazy" src="${img(s[2], 160)}" alt=""><div class="w">${a}${d.w >= 0 ? " · " + WN[d.w] : ""}</div><div class="f">${b}</div><div class="pr">${usd(d.v)}</div>${extra}</div>`;
+    return `<div class="sk" data-id="${d.id || ""}" style="--rc:${RC[s[1]]}">${d.st ? '<span class="st">ST™</span>' : ""}<img loading="lazy" src="${img(s[2], 160)}" alt=""><div class="w">${a}${d.w >= 0 ? " · " + WN[d.w] : ""}</div><div class="f">${b}</div><div class="pr">${money(d.v)}</div>${extra}</div>`;
   }
   /* Inventar (brauzer xotirasida) */
   const inv = { get: () => store("cs2inv") || [], set: (a) => store("cs2inv", a), add(ds) { this.set(this.get().concat(ds)); }, remove(ids) { const s = new Set(ids); this.set(this.get().filter((d) => !s.has(d.id))); } };
 
   /* Gorizontal tasma: g'olib skin markazdagi chiziq ostida to'xtaydi */
   async function spinStrip(box, c, win, ms = 5600) {
-    const N = 54, at = 46, fill = Array.from({ length: N }, (_, k) => (k === at ? win : roll(c)));
+    const gen = typeof c === "function" ? c : () => roll(c), N = 54, at = 46, fill = Array.from({ length: N }, (_, k) => (k === at ? win : gen()));
     box.innerHTML = `<div class="strip"><div class="track">${fill.map((d) => tile(d)).join("")}</div><div class="marker"></div></div>`;
     const track = box.querySelector(".track"), W = box.querySelector(".strip").clientWidth, step = 104 + 8;
     const target = 8 + at * step + 52 - W / 2 + (Math.random() - 0.5) * 80;
@@ -64,7 +65,7 @@ const CS = (() => {
   }
   /* Vertikal tasma (keys jangi uchun) */
   async function spinV(box, c, win, ms = 4200) {
-    const N = 30, at = 26, fill = Array.from({ length: N }, (_, k) => (k === at ? win : roll(c)));
+    const gen = typeof c === "function" ? c : () => roll(c), N = 30, at = 26, fill = Array.from({ length: N }, (_, k) => (k === at ? win : gen()));
     box.innerHTML = `<div class="vstrip"><div class="vtrack">${fill.map((d) => tile(d)).join("")}</div><div class="hline"></div></div>`;
     const track = box.querySelector(".vtrack"), H = 128, step = 118 + 6, target = at * step + 59 - H / 2 + (Math.random() - 0.5) * 50;
     if (REDUCED) ms = 400;
@@ -81,8 +82,14 @@ const CS = (() => {
     b.onclick = () => { store("chips_ts", Date.now()); Chips.add(1000); api.confetti({ n: 50, coins: true }); paint(); after && after(); };
     paint(); return paint;
   };
-  return { done, load, img, usd, cost, bal, pay, credit, roll, makeDrop, label, tile, inv, spinStrip, spinV, loader, freeBtn, RC, WN, get data() { return data; } };
+  return { setMoney: (f) => (money = f), done, load, img, usd, cost, bal, pay, credit, roll, makeDrop, label, tile, inv, spinStrip, spinV, loader, freeBtn, RC, WN, get data() { return data; } };
 })();
+
+/* 0) BILOLDROP — alohida bo'lim (biloldrop.html) --------------------- */
+G.add({
+  id: "biloldrop", ico: "💠", nm: "Biloldrop", cat: "cs2", tag: "HOT", ds: "Keyslar, terminal, 8 ta o'yin va bonuslar — alohida bo'lim",
+  start(stage) { stage.innerHTML = '<div class="loader"><i></i>Biloldrop ochilmoqda...</div>'; location.href = "biloldrop.html"; },
+});
 
 /* 1) KEYSLAR ---------------------------------------------------------- */
 G.add({
