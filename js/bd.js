@@ -91,14 +91,57 @@ function customDrop(it) {
   const s = D.skins[it.i], multi = s[3].length > 1, band = [[0, .07], [.07, .15], [.15, .38], [.38, .45], [.45, 1]][Math.max(0, it.w)];
   return { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), i: it.i, w: it.w, st: false, f: multi ? +(band[0] + Math.random() * (band[1] - band[0])).toFixed(4) : null, v: it.v };
 }
+/* Keys yasash: tanlangan variantlardan 14 xil skin, o'rtacha qaytim narxning 82% i */
+function makeCase(def) {
+  const items = spread(VARIANTS.filter(def.pick), def.size || 14);
+  if (items.length < 6) return null;
+  const lo = items[items.length - 1].v;
+  const price = def.p ?? +Math.max(lo * 1.3, Math.exp(items.reduce((a, it) => a + Math.log(it.v), 0) / items.length) * 1.4).toFixed(2);
+  const w = solve(items, def.ev ?? price * 0.82), tw = w.reduce((a, b) => a + b, 0);
+  return { type: "custom", grp: def.grp || "top", id: def.id, n: def.n, price, cc: def.cc, tag: def.tag, items, w, tw,
+    art: items.slice(0, 3).map((it) => CS.img(D.skins[it.i][2], 256)),
+    gen() { let r = Math.random() * tw; for (let k = 0; k < items.length; k++) if ((r -= w[k]) < 0) return customDrop(items[k]); return customDrop(items[items.length - 1]); } };
+}
+const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+const PALETTE = ["#ff4d5e", "#8b6cff", "#2fd4c7", "#ffc542", "#3fd27c", "#ff8a3d", "#7ee0ff", "#e05cff", "#c4ff3d", "#d9b26f"];
 function buildCases() {
-  const custom = DEF.map((def) => {
-    const items = spread(VARIANTS.filter(def.pick), 14), w = solve(items, def.ev ?? def.p * 0.82), tw = w.reduce((a, b) => a + b, 0);
-    return { type: "custom", id: def.id, n: def.n, price: def.p, cc: def.cc, tag: def.tag, items, w, tw,
-      art: items.slice(0, 3).map((it) => CS.img(D.skins[it.i][2], 256)),
-      gen() { let r = Math.random() * tw; for (let k = 0; k < items.length; k++) if ((r -= w[k]) < 0) return customDrop(items[k]); return customDrop(items[items.length - 1]); } };
+  const defs = DEF.map((d) => ({ ...d }));
+  const nameOf = (v) => D.skins[v.i][0];
+  // 1) Har bir qurol uchun to'plam
+  const byWeapon = {};
+  VARIANTS.forEach((v) => { const n = nameOf(v); if (n.startsWith("★") || !n.includes(" | ")) return; const w = n.split(" | ")[0]; (byWeapon[w] ||= new Set()).add(v.i); });
+  Object.entries(byWeapon).filter(([, s]) => s.size >= 8).sort((a, b) => b[1].size - a[1].size).forEach(([w], k) =>
+    defs.push({ id: "w-" + slug(w), n: `${w} to'plami`, grp: "weapon", cc: PALETTE[k % PALETTE.length], pick: (v) => nameOf(v).startsWith(w + " | ") }));
+  // 2) Har bir pichoq turi: pichoqlar + arzonroq to'ldiruvchilar
+  const knifeTypes = [...new Set(VARIANTS.filter((v) => isKnife(v.i)).map((v) => nameOf(v).split(" | ")[0]))];
+  knifeTypes.forEach((t, k) => {
+    const kv = VARIANTS.filter((v) => isKnife(v.i) && nameOf(v).split(" | ")[0] === t); if (kv.length < 3) return;
+    const cheap = kv[0].v, top = kv[kv.length - 1].v;
+    defs.push({ id: "k-" + slug(t), n: `${t.replace("★ ", "")} ovi`, grp: "knife", tag: "★", cc: PALETTE[(k + 3) % PALETTE.length], p: +(cheap * 0.45).toFixed(2), size: 16,
+      pick: (v) => (isKnife(v.i) ? nameOf(v).split(" | ")[0] === t && v.v <= Math.min(top, cheap * 40) : v.v >= cheap * 0.02 && v.v <= cheap * 0.4) });
   });
-  const official = D.cases.map((c, k) => ({ type: "official", id: "o" + k, n: c.n, price: CS.cost(c), cc: "#8b6cff", src: c, art: [CS.img(c.img, 360)], gen: () => CS.roll(c) }));
+  // 3) Qo'lqop turlari
+  const gloveTypes = [...new Set(VARIANTS.filter((v) => isGlove(v.i)).map((v) => nameOf(v).split(" | ")[0]))];
+  gloveTypes.forEach((t, k) => {
+    const gv = VARIANTS.filter((v) => isGlove(v.i) && nameOf(v).split(" | ")[0] === t); if (gv.length < 3) return;
+    const cheap = gv[0].v;
+    defs.push({ id: "g-" + slug(t), n: t.replace("★ ", ""), grp: "glove", tag: "★", cc: PALETTE[(k + 6) % PALETTE.length], p: +(cheap * 0.45).toFixed(2), size: 16,
+      pick: (v) => (isGlove(v.i) ? nameOf(v).split(" | ")[0] === t && v.v <= cheap * 40 : v.v >= cheap * 0.02 && v.v <= cheap * 0.4) });
+  });
+  // 4) Mashhur uslublar (bo'yoq nomi bo'yicha)
+  ["Doppler", "Gamma Doppler", "Fade", "Marble Fade", "Tiger Tooth", "Slaughter", "Crimson Web", "Case Hardened", "Asiimov", "Hyper Beast", "Neo-Noir", "Printstream", "Redline", "Vulcan", "Bloodsport", "The Emperor", "Fire Serpent", "Wild Lotus", "Kill Confirmed", "Fever Dream", "Mecha Industries", "Ultraviolet", "Damascus Steel", "Safari Mesh"].forEach((st, k) =>
+    defs.push({ id: "s-" + slug(st), n: `${st} uslubi`, grp: "style", cc: PALETTE[(k + 1) % PALETTE.length], pick: (v) => (nameOf(v).split(" | ")[1] || "").split(" (")[0] === st }));
+  // 5) Narx bo'yicha (so'mda)
+  [1000, 3000, 5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000, 2500000, 5000000].forEach((s, k) => {
+    const usd = s / RATE;
+    defs.push({ id: "t-" + s, n: `${s >= 1e6 ? s / 1e6 + " mln" : s.toLocaleString("ru-RU")} so'mlik`, grp: "tier", cc: PALETTE[(k + 4) % PALETTE.length], p: +usd.toFixed(2), pick: (v) => v.v >= usd * 0.04 && v.v <= usd * 25 });
+  });
+  // 6) Noyoblik bo'yicha
+  [[2, "Ko'k harbiy", "#4b69ff"], [3, "Binafsha cheklangan", "#8847ff"], [4, "Pushti maxfiy", "#d32ce6"], [5, "Qizil yashirin", "#eb4b4b"]].forEach(([r, n, cc]) =>
+    defs.push({ id: "r-" + r, n, grp: "style", cc, pick: (v) => D.skins[v.i][1] === r }));
+  const seen = new Set();
+  const custom = defs.map(makeCase).filter((c) => c && !seen.has(c.id) && seen.add(c.id));
+  const official = D.cases.map((c, k) => ({ type: "official", grp: "official", id: "o" + k, n: c.n, price: CS.cost(c), cc: "#8b6cff", src: c, art: [CS.img(c.img, 360)], gen: () => CS.roll(c) }));
   return custom.concat(official);
 }
 
@@ -159,23 +202,34 @@ $("topup").onclick = () => {
 function caseCard(c, k) {
   const free = c.id === "free";
   const art = c.type === "custom"
-    ? `${c.art[1] ? `<img class="b2" src="${c.art[1]}" alt="">` : ""}${c.art[2] ? `<img class="b3" src="${c.art[2]}" alt="">` : ""}<img class="b1" src="${c.art[0]}" alt="">`
-    : `<img src="${c.art[0]}" alt="">`;
+    ? `${c.art[1] ? `<img class="b2" loading="lazy" src="${c.art[1]}" alt="">` : ""}${c.art[2] ? `<img class="b3" loading="lazy" src="${c.art[2]}" alt="">` : ""}<img class="b1" loading="lazy" src="${c.art[0]}" alt="">`
+    : `<img loading="lazy" src="${c.art[0]}" alt="">`;
   return `<div class="case" data-c="${c.id}" style="--cc:${c.cc};--i:${Math.min(k, 14)}">${c.tag ? `<span class="tag">${c.tag}</span>` : ""}<div class="art">${art}</div><div class="cn">${c.n}</div><div class="cp ${free ? "free" : ""}">${free ? "Bepul" : som(c.price)}</div></div>`;
 }
+const GROUPS = [["top", "Mashhur"], ["knife", "Pichoqlar"], ["glove", "Qo'lqoplar"], ["weapon", "Qurollar"], ["style", "Uslublar"], ["tier", "Narx bo'yicha"], ["official", "Rasmiy CS2"]];
 PAGES.cases = () => {
-  el(`<h2>Keyslar</h2><p class="sub">Barcha narxlar — haqiqiy bozor narxlari (${D.src}), so'mda: 1$ = ${RATE.toLocaleString("ru-RU")} so'm (MB, ${D.updated}).</p>`);
-  const q = el(`<input class="inp" placeholder="Keys qidirish" style="margin-bottom:6px">`).firstChild;
+  const free = CASES.find((c) => c.id === "free");
+  el(`<h2>Keyslar <small style="font:700 13px var(--font);color:var(--faint)">${CASES.length} ta</small></h2>`);
+  // Bepul keys — ixcham banner
+  const fb = el(`<div class="free-b" style="--cc:${free.cc}"><img src="${free.art[0]}" alt=""><div><b>Kunlik bepul keys</b><span id="freeT"></span></div><button class="btn" style="width:auto;padding:10px 16px">Ochish</button></div>`);
+  fb.onclick = () => go("casepage", "free");
+  const left = Math.max(0, (store("bd_free_ts") || 0) + 864e5 - Date.now());
+  $("freeT").textContent = left ? `Keyingisi ${Math.ceil(left / 36e5)} soatdan keyin` : "Hozir ochish mumkin!";
+  const q = el(`<input class="inp" placeholder="Keys qidirish: AK, Karambit, Doppler...">`).firstChild;
+  let g = store("bd_grp") || "all";
+  const chips = el([["all", "Hammasi"], ...GROUPS].map(([k, n]) => `<button data-g="${k}">${n}</button>`).join(""), "chips");
+  chips.style.marginTop = "10px";
   const body = el("");
   const draw = () => {
-    const s = q.value.trim().toLowerCase(), f = (c) => !s || c.n.toLowerCase().includes(s);
-    const custom = CASES.filter((c) => c.type === "custom" && c.id !== "free" && f(c)), off = CASES.filter((c) => c.type === "official" && f(c));
-    const free = CASES.find((c) => c.id === "free");
-    body.innerHTML = (f(free) ? `<h3>Bepul</h3><div class="cases">${caseCard(free, 0)}</div>` : "")
-      + (custom.length ? `<h3>Biloldrop keyslari <small>${custom.length} ta</small></h3><div class="cases">${custom.map(caseCard).join("")}</div>` : "")
-      + (off.length ? `<h3>Rasmiy CS2 keyslari <small>${off.length} ta</small></h3><div class="cases">${off.map(caseCard).join("")}</div>` : "");
+    chips.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.g === g));
+    const s = q.value.trim().toLowerCase(), f = (c) => c.id !== "free" && (!s || c.n.toLowerCase().includes(s));
+    body.innerHTML = GROUPS.filter(([k]) => g === "all" || g === k).map(([k, n]) => {
+      const list = CASES.filter((c) => c.grp === k && f(c)); if (!list.length) return "";
+      return `<h3>${n} <small>${list.length} ta</small></h3><div class="cases">${list.map(caseCard).join("")}</div>`;
+    }).join("") || `<div class="sub center" style="padding:30px 0">Hech narsa topilmadi</div>`;
     body.querySelectorAll(".case").forEach((x) => (x.onclick = () => { haptic(); go("casepage", x.dataset.c); }));
   };
+  chips.querySelectorAll("button").forEach((b) => (b.onclick = () => { g = b.dataset.g; store("bd_grp", g); haptic(); draw(); }));
   q.oninput = draw; draw();
 };
 PAGES.casepage = (id) => {
