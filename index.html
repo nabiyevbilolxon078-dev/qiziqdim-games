@@ -141,6 +141,7 @@
 <script>
 "use strict";
 const tg = window.Telegram && window.Telegram.WebApp;
+const BOT = new URLSearchParams(location.search).get("bot") || "qiziqdim_bot";
 if (tg) { tg.ready(); tg.expand(); }
 const $ = (id) => document.getElementById(id);
 const haptic = (t) => { try { tg && tg.HapticFeedback && (t === "ok" || t === "bad" ? tg.HapticFeedback.notificationOccurred(t === "ok" ? "success" : "error") : tg.HapticFeedback.impactOccurred(t || "light")); } catch (e) {} };
@@ -229,12 +230,16 @@ $("rAgain").onclick = () => { hideResult(); openGame(current); };
 $("rHome").onclick = goHome;
 $("rClaim").onclick = () => {
   if (!lastResult) return;
-  // sendData faqat pastki klaviaturadagi tugma orqali ochilganda ishlaydi (u holda query_id bo'lmaydi)
-  const viaKeyboard = tg && tg.initData && !(tg.initDataUnsafe && tg.initDataUnsafe.query_id);
-  if (viaKeyboard) {
+  if (!(tg && tg.initData)) return toast("Tanga olish uchun o'yinni Telegram'dagi @" + BOT + " orqali oching", 3500);
+  // Pastki klaviatura tugmasi orqali ochilgan bo'lsa (query_id yo'q) — sendData ishlaydi
+  if (!(tg.initDataUnsafe && tg.initDataUnsafe.query_id)) {
     try { tg.sendData(JSON.stringify(lastResult)); return; } catch (e) {}
   }
-  toast("Tanga olish uchun o'yinlarni chatdagi pastki 🕹 O'yin markazi tugmasi orqali oching", 3500);
+  // "Open" / menyu tugmasi orqali ochilgan bo'lsa — natija botga /start havolasi orqali yuboriladi
+  const r = lastResult;
+  const code = [r.g, r.s ?? r.m, r.d ?? r.t ?? ""].filter((x) => x !== "").join("-");
+  tg.openTelegramLink(`https://t.me/${BOT}?start=g-${code}`);
+  setTimeout(() => tg.close(), 300);
 };
 
 /* ---------- Kanvas yordamchisi ---------- */
