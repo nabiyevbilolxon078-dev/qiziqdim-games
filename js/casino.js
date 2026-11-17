@@ -5,7 +5,11 @@
 
 /* Natija xabari: g'alaba/yutqazish */
 function casMsg(el, win, bet, extra = "") {
-  if (win > bet) { el.innerHTML = `🎉 Yutuq: <span style="color:var(--good)">+${win - bet}</span> ${extra}`; haptic("ok"); }
+  if (win > bet) {
+    el.innerHTML = `Yutuq: <span style="color:var(--green)">+${win - bet}</span> ${extra}`; haptic("ok");
+    if (el.animate) el.animate([{ transform: "scale(.8)", opacity: 0 }, { transform: "scale(1.08)" }, { transform: "none", opacity: 1 }], { duration: 420, easing: "cubic-bezier(.16,1,.3,1)" });
+    if (win >= bet * 3) Confetti.fire(innerWidth / 2, innerHeight * 0.55, { n: win >= bet * 10 ? 140 : 60, coins: true });
+  }
   else if (win === bet && win > 0) { el.innerHTML = `🤝 Qaytdi ${extra}`; }
   else { el.innerHTML = `😔 −${bet - win} ${extra}`; haptic("bad"); }
   Chips.paint();
@@ -29,8 +33,14 @@ G.add({
     btn.onclick = async () => {
       if (spinning) return; const b = bet.get(); if (!Chips.take(b)) return; spinning = true; btn.disabled = true; msg.textContent = "...";
       const res = [roll(), roll(), roll()], els = [...reels.children];
-      for (let k = 0; k < 3; k++) { for (let t = 0; t < 8 + k * 5 && alive; t++) { els[k].textContent = pick(SYM)[0]; await sleep(55); } els[k].textContent = res[k][0]; haptic(); }
+      els.forEach((e) => { e.classList.remove("win"); e.classList.add("spin"); });
+      for (let k = 0; k < 3; k++) {
+        for (let t = 0; t < 8 + k * 5 && alive; t++) { els[k].textContent = pick(SYM)[0]; await sleep(55); }
+        els[k].classList.remove("spin"); els[k].textContent = res[k][0]; haptic("medium");
+        if (els[k].animate) els[k].animate([{ transform: "translateY(-14px)" }, { transform: "translateY(4px)" }, { transform: "none" }], { duration: 260, easing: "cubic-bezier(.16,1,.3,1)" });
+      }
       let mult = 0; if (res[0][0] === res[1][0] && res[1][0] === res[2][0]) mult = res[0][2]; else if (res.filter((s) => s[0] === "🍒").length === 2) mult = 2;
+      if (mult >= 5) els.forEach((e) => e.classList.add("win"));
       const win = b * mult; Chips.add(win); casMsg(msg, win, b, mult >= 25 ? "💥 JACKPOT!" : ""); bet.paint();
       spinning = false; btn.disabled = false;
     };
@@ -122,10 +132,10 @@ G.add({
     const btn = api.el(`<button class="btn" style="margin-top:12px;font-size:20px">🚀 UCHIRISH</button>`).firstChild;
     let state = "idle", m = 1, crashAt = 1, b = 0, pts = [], stop = null, t = 0;
     const draw = () => {
-      ctx.clearRect(0, 0, W, H); ctx.strokeStyle = state === "boom" ? "#ff5e6c" : "#2ecc71"; ctx.lineWidth = 3; ctx.beginPath();
+      ctx.clearRect(0, 0, W, H); ctx.strokeStyle = state === "boom" ? "#ff5a5f" : "#3fd27c"; ctx.lineWidth = 3; ctx.beginPath();
       pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.stroke();
       const last = pts[pts.length - 1] || [10, H - 10]; ctx.font = "28px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(state === "boom" ? "💥" : "🚀", last[0], last[1]);
-      ctx.fillStyle = state === "boom" ? "#ff5e6c" : "#fff"; ctx.font = "bold 38px sans-serif"; ctx.fillText(`×${m.toFixed(2)}`, W / 2, 40);
+      ctx.fillStyle = state === "boom" ? "#ff5a5f" : "#fff"; ctx.font = "700 36px Unbounded, sans-serif"; ctx.fillText(`×${m.toFixed(2)}`, W / 2, 40);
     };
     btn.onclick = () => {
       if (state === "fly") { // pulni olish
@@ -151,7 +161,7 @@ G.add({
   id: "wheel", ico: "🎯", nm: "Omad g'ildiragi", cat: "casino", ds: "G'ildirakni aylantiring — ko'paytiruvchi tushadi",
   start(stage, api) {
     const SEG = [0, 1.5, 0, 2, 0.5, 0, 3, 0, 1.2, 0.5, 5, 0, 1.5, 0.2, 10, 0];
-    const COL = ["#e74c3c", "#3498db", "#2ecc71", "#f1c40f", "#9b59b6", "#e67e22", "#1abc9c", "#e84393"];
+    const COL = ["#e74c3c", "#3498db", "#3fd27c", "#f1c40f", "#9b59b6", "#e67e22", "#1abc9c", "#e84393"];
     const S = Math.min(300, api.width()); const { c, ctx } = api.canvas(S, S);
     const msg = api.el("", "msg"); const bet = api.bet();
     const btn = api.el(`<button class="btn" style="margin-top:12px;font-size:20px">🎯 AYLANTIRISH</button>`).firstChild;

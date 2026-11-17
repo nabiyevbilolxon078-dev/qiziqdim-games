@@ -50,7 +50,7 @@ G.add({
     const seg = api.el(`<button data-d="easy">😊 Oson</button><button data-d="hard">😈 Qiyin</button>`, "seg");
     const msg = api.el("", "msg");
     const [box, cells] = makeBoard(api, 9, 3, 330, 46);
-    const render = (hl = []) => cells.forEach((c, i) => { c.textContent = b[i] === "X" ? "✕" : b[i] === "O" ? "○" : ""; c.style.color = b[i] === "X" ? "#4fc3ff" : "#ff5e6c"; c.style.background = hl.includes(i) ? "rgba(46,204,113,.3)" : ""; });
+    const render = (hl = []) => cells.forEach((c, i) => { c.textContent = b[i] === "X" ? "✕" : b[i] === "O" ? "○" : ""; c.style.color = b[i] === "X" ? "#2fd4c7" : "#ff5a5f"; c.style.background = hl.includes(i) ? "rgba(46,204,113,.3)" : ""; });
     const reset = () => { b = Array(9).fill(""); over = false; clearTimeout(timer); msg.textContent = "Siz ✕ bilan o'ynaysiz"; render(); seg.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x.dataset.d === diff)); };
     const finish = (r) => { over = true; render(r.l); const s = r.w === "X" ? 2 : r.w === "draw" ? 1 : 0;
       setTimeout(() => api.end({ icon: s === 2 ? "🎉" : s === 1 ? "🤝" : "🤖", title: s === 2 ? "Siz yutdingiz!" : s === 1 ? "Durang!" : "Bot yutdi", text: `Daraja: <b>${diff === "hard" ? "Qiyin" : "Oson"}</b>`, coins: s === 2 ? (diff === "hard" ? 80 : 30) : s === 1 ? 10 : 0 }), 500); };
@@ -97,15 +97,15 @@ G.add({
       seg.querySelectorAll("button").forEach((x) => x.classList.toggle("on", +x.dataset.d === diff));
       grid = full.slice(); shuffle([...Array(81).keys()]).slice(0, diff).forEach((i) => (grid[i] = 0)); givens = grid.map(Boolean); sel = -1; mistakes = 0;
       holder.innerHTML = `<div class="board" style="grid-template-columns:repeat(9,1fr);gap:2px;max-width:420px">${grid.map((v, i) => `<button class="cell" data-i="${i}" style="font-size:17px;border-radius:4px;${(Math.floor(i / 9) % 3 === 2 && i < 72) ? "margin-bottom:3px;" : ""}${(i % 9) % 3 === 2 && i % 9 < 8 ? "margin-right:3px;" : ""}"></button>`).join("")}</div>`;
-      pad.innerHTML = `<div class="board" style="grid-template-columns:repeat(9,1fr);gap:4px;max-width:420px">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((v) => `<button class="cell" data-v="${v}" style="font-size:18px;background:var(--accent);color:#fff">${v}</button>`).join("")}</div>`;
+      pad.innerHTML = `<div class="board" style="grid-template-columns:repeat(9,1fr);gap:4px;max-width:420px">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((v) => `<button class="cell" data-v="${v}" style="font-size:18px;background:var(--firuza);color:var(--firuza-ink)">${v}</button>`).join("")}</div>`;
       holder.querySelectorAll("[data-i]").forEach((c) => (c.onclick = () => { sel = +c.dataset.i; paint(); }));
       pad.querySelectorAll("[data-v]").forEach((c) => (c.onclick = () => put(+c.dataset.v)));
       paint();
     };
     const paint = () => holder.querySelectorAll("[data-i]").forEach((c, i) => {
       c.textContent = grid[i] || ""; const same = sel >= 0 && (Math.floor(i / 9) === Math.floor(sel / 9) || i % 9 === sel % 9);
-      c.style.background = i === sel ? "var(--accent)" : sel >= 0 && grid[sel] && grid[i] === grid[sel] ? "rgba(108,92,231,.35)" : same ? "rgba(127,127,127,.18)" : "";
-      c.style.color = givens[i] ? "var(--text)" : "#4fc3ff"; c.style.fontWeight = givens[i] ? "800" : "600";
+      c.style.background = i === sel ? "var(--accent)" : sel >= 0 && grid[sel] && grid[i] === grid[sel] ? "rgba(47,212,199,.3)" : same ? "rgba(127,127,127,.18)" : "";
+      c.style.color = givens[i] ? "var(--text)" : "#2fd4c7"; c.style.fontWeight = givens[i] ? "800" : "600";
       api.score(`❌ ${mistakes}/3`);
     });
     const put = (v) => {
@@ -228,7 +228,7 @@ G.add({
 G.add({
   id: "simon", ico: "🚦", nm: "Rang ketma-ketligi", cat: "puzzle", max: 150, tag: "YANGI", unit: " qadam", ds: "Yonadigan ranglar ketma-ketligini eslab, qaytaring",
   start(stage, api) {
-    const COLS = ["#e74c3c", "#2ecc71", "#3498db", "#f1c40f"]; let seq = [], pos = 0, busy = true, alive = true;
+    const COLS = ["#e74c3c", "#3fd27c", "#3498db", "#f1c40f"]; let seq = [], pos = 0, busy = true, alive = true;
     const msg = api.el("Tayyorlaning...", "msg");
     const [box, cells] = makeBoard(api, 4, 2, 320, 20);
     cells.forEach((c, i) => { c.style.background = COLS[i]; c.style.opacity = 0.45; });
@@ -248,7 +248,7 @@ G.add({
 G.add({
   id: "water", ico: "🧪", nm: "Suv saralash", cat: "puzzle", max: 150, tag: "YANGI", ds: "Har bir idishda faqat bitta rang qolsin. Usti bir xil rangga quyiladi",
   start(stage, api) {
-    const COL = ["#e74c3c", "#2ecc71", "#3498db", "#f1c40f", "#9b59b6"]; const K = 5, CAP = 4;
+    const COL = ["#e74c3c", "#3fd27c", "#3498db", "#f1c40f", "#9b59b6"]; const K = 5, CAP = 4;
     let tubes, sel = -1, moves = 0;
     const deal = () => { // tasodifiy, lekin yechiladigan holat: yechilgan holatdan teskari yurishlar
       tubes = COL.slice(0, K).map((c) => Array(CAP).fill(c)).concat([[], []]);
@@ -257,7 +257,7 @@ G.add({
     };
     const box = api.el("", "row"); box.style.flexWrap = "wrap"; box.style.justifyContent = "center";
     const render = () => {
-      box.innerHTML = tubes.map((t, k) => `<div data-t="${k}" style="flex:0 0 52px;height:${CAP * 34 + 14}px;border:3px solid ${sel === k ? "var(--accent)" : "rgba(127,127,127,.5)"};border-top:0;border-radius:0 0 22px 22px;display:flex;flex-direction:column-reverse;padding:4px;gap:2px;cursor:pointer;${sel === k ? "transform:translateY(-10px)" : ""}">${t.map((c) => `<div style="height:32px;border-radius:6px;background:${c}"></div>`).join("")}</div>`).join("");
+      box.innerHTML = tubes.map((t, k) => `<div data-t="${k}" style="flex:0 0 52px;height:${CAP * 34 + 14}px;border:3px solid ${sel === k ? "var(--accent)" : "rgba(170,179,214,.35)"};border-top:0;border-radius:0 0 22px 22px;display:flex;flex-direction:column-reverse;padding:4px;gap:2px;cursor:pointer;${sel === k ? "transform:translateY(-10px)" : ""}">${t.map((c) => `<div style="height:32px;border-radius:6px;background:${c}"></div>`).join("")}</div>`).join("");
       box.querySelectorAll("[data-t]").forEach((el) => (el.onclick = () => click(+el.dataset.t)));
       api.score(`👣 ${moves}`);
     };

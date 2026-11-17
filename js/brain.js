@@ -31,7 +31,7 @@ function quizRun(api, { mode = "count", total = 10, seconds = 30, gen, per = 10,
     if (lock) return; lock = true;
     const right = cur.opts[+b.dataset.i] === cur.ans;
     b.classList.add(right ? "ok" : "no");
-    if (right) { ok++; streak++; haptic(); msg.textContent = streak >= 3 ? `🔥 ${streak} ketma-ket!` : ""; }
+    if (right) { ok++; streak++; haptic(); api.float(b, "+1"); msg.textContent = streak >= 3 ? `🔥 ${streak} ketma-ket!` : ""; }
     else { streak = 0; haptic("bad"); left -= penalty; msg.textContent = penalty ? `❌ −${penalty} s` : "❌"; [...opts.children].find((x) => cur.opts[+x.dataset.i] === cur.ans)?.classList.add("ok"); }
     if (mode === "time") api.score(`✅ ${ok}`);
     setTimeout(next, right ? 250 : 800);
@@ -115,7 +115,7 @@ G.add({
 G.add({
   id: "stroop", ico: "🎨", nm: "Rang aldovi", cat: "speed", max: 200, tag: "YANGI", ds: "So'z qaysi RANGDA yozilgan? (so'zning ma'nosiga qaramang) 30 soniya",
   start(stage, api) {
-    const C = [["QIZIL", "#e74c3c"], ["YASHIL", "#2ecc71"], ["KO'K", "#3498db"], ["SARIQ", "#f1c40f"], ["PUSHTI", "#e84393"]];
+    const C = [["QIZIL", "#e74c3c"], ["YASHIL", "#3fd27c"], ["KO'K", "#3498db"], ["SARIQ", "#f1c40f"], ["PUSHTI", "#e84393"]];
     return quizRun(api, { mode: "time", seconds: 30, per: 6, icon: "🎨", penalty: 2, gen: () => {
       const w = pick(C), col = pick(C.filter((c) => c !== w));
       return { q: `<span style="color:${col[1]};font-size:46px">${w[0]}</span>`, opts: optsWith(col[0], C.map((c) => c[0])), ans: col[0], style: "font-size:15px" };
@@ -284,7 +284,7 @@ G.add({
     Object.assign(box.style, { height: "52vh", minHeight: "280px", borderRadius: "18px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "26px", fontWeight: "800", textAlign: "center", padding: "20px", background: "var(--card)", cursor: "pointer" });
     const list = api.el("", "msg"); let state = "idle", times = [], start = 0, to;
     const set = (bg, txt, col = "#fff") => { box.style.background = bg; box.style.color = col; box.innerHTML = txt; };
-    const wait = () => { state = "wait"; set("#c0392b", "Kuting..."); to = setTimeout(() => { state = "go"; set("#2ecc71", "BOSING!"); start = performance.now(); haptic("medium"); }, 1200 + Math.random() * 2800); };
+    const wait = () => { state = "wait"; set("#c0392b", "Kuting..."); to = setTimeout(() => { state = "go"; set("#3fd27c", "BOSING!"); start = performance.now(); haptic("medium"); }, 1200 + Math.random() * 2800); };
     box.addEventListener("pointerdown", () => {
       if (state === "idle" || state === "show") return wait();
       if (state === "wait") { clearTimeout(to); state = "show"; set("#ffc048", "Juda erta! 😅<br><small>Qayta bosing</small>", "#222"); haptic("bad"); return; }
